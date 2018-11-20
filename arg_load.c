@@ -16,6 +16,7 @@
 
 typedef enum {FALSE, TRUE} bool_h;
 typedef enum {NMEA, UBX, AUTO} protocol_t;
+typedef enum {ST_OK, ST_NULL_PTR, ST_INVALID_ARGUMENT} status_t;
 
 const char valid_arguments[][ARG_MAX_LEN] = {
 	"-h", "--help",
@@ -79,8 +80,7 @@ status_t arg_load(int argc, const char ** argv, arg_s * metadata_io) {
 					case 1 :
 
 						/* Crear: status_t set_help(arg_s *); */
-						if(set_name(metadata_io, argv[i]) == ESTADOS_DE_ERROR)
-							return ERROR;
+						set_help(metadata_io);
 
 						arg_flags[j/2]++;
 						break;
@@ -91,7 +91,12 @@ status_t arg_load(int argc, const char ** argv, arg_s * metadata_io) {
 						if(++i == argc) // si -n esta en el ultimo lugar de argv no puede leer el nombre
 							return ST_INVALID_ARGUMENT;
 
-						c
+						/* Crear: status_t set_name(arg_s *, char *); */
+						if(set_name(metadata_io, argv[i]) == ESTADOS_DE_ERROR)
+							return ERROR;
+
+						arg_flags[j/2]++;
+						break;
 
 					case 4 :
 					case 5 :
