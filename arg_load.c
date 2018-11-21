@@ -44,6 +44,7 @@ const char valid_arguments[][ARG_MAX_LEN] = {
 
 const char protocols[][PROTOCOL_MAX_LEN] = {"nmea", "ubx", "auto"};
 
+//LAS VARIABLES DEFAULT INDICAN SI ALGUNO DE LOS ARCHIVOS ES DEFAULT (PARA NO CERRARLOS LUEGO) STDIN, STDOUT, STDERR
 
 struct arg {
 	struct tm * time;
@@ -74,28 +75,18 @@ status_t arg_set_maxlen(arg_s *, const char *);
 
 
 
-
-
-
-
-
 status_t arg_load(int argc, const char ** argv, arg_s * metadata_io) {
 
 	size_t i, j;
 	status_t st;
 	time_t actual_time = time(NULL);
-
-	/* Se utiliza para saber que argumentos ya se procesaron, para evitar repeticiones */
-	
-	int arg_flags[ARG_TYPES] = {0};
+	int arg_flags[ARG_TYPES] = {0}; // Se utiliza para saber que argumentos ya se procesaron, para evitar repeticiones
 
 
 	if(! metadata_io)
 		return ST_NULL_PTR;
 
-	/* Para cada argumento en argv se compara con los argumentos validos */
-
-	for(i = 1; i < argc; i++) {
+	for(i = 1; i < argc; i++) { // Para cada argumento en argv se compara con los argumentos validos
 
 		for(j = 0; j < ARG_NUM; j++) {
 
@@ -108,13 +99,13 @@ status_t arg_load(int argc, const char ** argv, arg_s * metadata_io) {
 
 						arg_set_help(metadata_io);
 
-						arg_flags[j/2]++;
+						arg_flags[j/2]++; // SE CARGA LA LECTURA EN EL VECTOR DE FLAGS
 						break;
 
 					case 2 :
 					case 3 :
 
-						if(++i == argc) // si -n esta en el ultimo lugar de argv no puede leer el nombre
+						if(++i == argc) // si -n esta en el ultimo lugar de argv no puede leer el nombre porque no hay nada
 							return ST_INVALID_ARGUMENT;
 
 						st = arg_set_name(metadata_io, argv[i]);
@@ -202,19 +193,18 @@ status_t arg_load(int argc, const char ** argv, arg_s * metadata_io) {
 
 				}
 
-				/* Si se encuentra el tipo de argumento no se sigue buscando en valid_arguments */
-				j = ARG_NUM;
+				j = ARG_NUM; //Si se encuentra el tipo de argumento no se sigue buscando en valid_arguments
 
 			}
 		}
 	}
 
-	metadata_io->time = gmtime(&actual_time);
+	metadata_io->time = gmtime(&actual_time); // CARGA LA ESTRUCTURA APUNTADA POR METADATA_IO->TIME
 
-	if(arg_flags[ARG_TYPE_HELP] == 0)
+	if(arg_flags[ARG_TYPE_HELP] == 0) // SE PONE EL FLAG DEL HELP EN 1 PARA LUEGO VERIFICAR LOS FLAGS
 		arg_flags[ARG_TYPE_HELP]++;
 
-	if(arg_flags[ARG_TYPE_NAME] == 0) {
+	if(arg_flags[ARG_TYPE_NAME] == 0) { // SI NO SE INGRESO EL NOMBRE SE CARGA EL DEFAULT
 
 		st = arg_set_name(metadata_io, DEFAULT_NAME);
 						
@@ -225,7 +215,7 @@ status_t arg_load(int argc, const char ** argv, arg_s * metadata_io) {
 
 	}
 
-	if(arg_flags[ARG_TYPE_MAXLEN] == 0) {
+	if(arg_flags[ARG_TYPE_MAXLEN] == 0) { // SI NO SE INGRESO MAXLEN SE CARGA EL DEFAULT
 
 		st = arg_set_maxlen(metadata_io, DEFAULT_MAXLEN);
 
@@ -235,10 +225,7 @@ status_t arg_load(int argc, const char ** argv, arg_s * metadata_io) {
 		arg_flags[ARG_TYPE_MAXLEN]++;
 	}
 
-	/*  Debe comprobarse que los campos obligatorios de la estructura se hayan completado. (protocol, infile, outfile, logfile, maxlen)
-		Se utiliza el vector de flags del 2do al 6to argumento */
-
-	for(i = 0; i < ARG_TYPES; i++) {
+	for(i = 0; i < ARG_TYPES; i++) { // TODOS LOS FLAGS DEBEN ESTAR EN 1
 
 		if(arg_flags[i] != 1) 
 			return ST_INVALID_ARGUMENT;
@@ -249,7 +236,7 @@ status_t arg_load(int argc, const char ** argv, arg_s * metadata_io) {
 }
 
 
-arg_s * arg_create(status_t * st) {
+arg_s * arg_create(status_t * st) { // CREA UNA ESTRUCTURA Y DEVUELVE UN PUNTERO A LA MISMA (INICIALIZADA EN 0)
 
 	arg_s * aux = NULL;
 
@@ -266,7 +253,7 @@ arg_s * arg_create(status_t * st) {
 	return aux;
 }
 
-status_t arg_set_help(arg_s * metadata_io) {
+status_t arg_set_help(arg_s * metadata_io) { // ASIGNA TRUE AL HELP DE LA ESTRUCTURA
 
 	if(! metadata_io)
 		return ST_NULL_PTR;
@@ -275,7 +262,7 @@ status_t arg_set_help(arg_s * metadata_io) {
 	return ST_OK;
 }
 
-status_t arg_set_name(arg_s * metadata_io, const char * name) {
+status_t arg_set_name(arg_s * metadata_io, const char * name) { // PIDE MEMORIA PARA EL NOMBRE Y LO CARGA EN LA ESTRUCTURA
 
 	if(! metadata_io)
 		return ST_NULL_PTR;
@@ -290,7 +277,7 @@ status_t arg_set_name(arg_s * metadata_io, const char * name) {
 	return ST_OK;
 }
 
-status_t arg_set_protocol(arg_s * metadata_io, const char * protocol) {
+status_t arg_set_protocol(arg_s * metadata_io, const char * protocol) { // CARGA EL PROTOCOLO EN LA ESTRUCTURA 
 
 	size_t i;
 
@@ -300,7 +287,7 @@ status_t arg_set_protocol(arg_s * metadata_io, const char * protocol) {
 	for(i = 0; i < PROTOCOL_NUM; i++) {
 
 		if(! strcmp(protocols[i], protocol)) {
-			metadata_io->protocol = i + 1;
+			metadata_io->protocol = i + 1; // LOS PROTOCOLOS VALIDOS SON 1, 2 Y 3. DEBE SUMARSE 1
 			return ST_OK;
 		}
 	
@@ -309,16 +296,16 @@ status_t arg_set_protocol(arg_s * metadata_io, const char * protocol) {
 	return ST_INVALID_ARGUMENT;
 }
 
-status_t arg_set_infile(arg_s * metadata_io, const char * infile) {
+status_t arg_set_infile(arg_s * metadata_io, const char * infile) { // ABRE EL ARCHIVO DE LECTURA Y GUARDA EL PUNTERO EN LA ESTRUCTURA
 
 	if(! metadata_io)
 		return ST_NULL_PTR;
 
-	if(metadata_io->protocol == NMEA) {
+	if(metadata_io->protocol == NMEA) { // SI EL PROTOCOLO ES NMEA SE DEBE ABRIR PARA LECTURA DE TEXTO
 
-		if(! strcmp(infile, DEFAULT_FILE_STR)) {
+		if(! strcmp(infile, DEFAULT_FILE_STR)) { // SI EL NOMBRE DEL ARCHIVO ES EL RESERVADO PARA DEFAULT '-' EL ARCHIVO DE LECTURA ES STDIN
 			
-			metadata_io->infile = stdin;
+			metadata_io->infile = stdin; // SI SE ABRE EL ARCHIVO DEFAULT INFILE_DEFAULT TOMA EL VALOR TRUE
 			metadata_io->infile_default = TRUE;
 			return ST_OK;
 		}
@@ -326,9 +313,9 @@ status_t arg_set_infile(arg_s * metadata_io, const char * infile) {
 		if((metadata_io->infile = fopen(infile, MODE_READ_TEXT)) == NULL)
 			return ST_ERR_OPEN_IN_FILE;
 
-	} else if(metadata_io->protocol == UBX) {
+	} else if(metadata_io->protocol == UBX) { // SI EL PROTOCOLO ES UBX SE DEBE ABRIR PARA LECTURA BINARIA
 
-		if(! strcmp(infile, DEFAULT_FILE_STR)) {
+		if(! strcmp(infile, DEFAULT_FILE_STR)) { // SI EL NOMBRE ES '-' SE REABRE STDIN PARA LECTURA BINARIA (PREGUNTAR)
 			
 			freopen(NULL, MODE_READ_BINARY, stdin); // PREGUNTAAAR!!!!!!!!!!!
 
@@ -340,9 +327,9 @@ status_t arg_set_infile(arg_s * metadata_io, const char * infile) {
 		if((metadata_io->infile = fopen(infile, MODE_READ_BINARY)) == NULL)
 			return ST_ERR_OPEN_IN_FILE;
 
-	} else if(metadata_io->protocol == AUTO) {
+	} else if(metadata_io->protocol == AUTO) { // SI EL PROTOCOLO ES AUTO NO SE REALIZA NINGUNA ACCION, EL ARCHIVO DEBE ABRIRSE UNA VEZ DETECTADO EL PROTOCOLO.
 
-	} else {
+	} else { // SI EL PROTOCOLO NO FUE ASIGNADO SE DEVUELVE ERROR
 
 		return ST_NO_PROTOCOL;
 
@@ -351,12 +338,12 @@ status_t arg_set_infile(arg_s * metadata_io, const char * infile) {
 	return ST_OK;
 }
 
-status_t arg_set_outfile(arg_s * metadata_io, const char * outfile) {
+status_t arg_set_outfile(arg_s * metadata_io, const char * outfile) { 
 
 	if(! metadata_io)
 		return ST_NULL_PTR;
 
-	if(! strcmp(outfile, DEFAULT_FILE_STR)) {
+	if(! strcmp(outfile, DEFAULT_FILE_STR)) { // SI EL NOMBRE DEL ARCHIVO ES '-' (RESERVADO) EL ARCHIVO DE SALIDA ES STDOUT
 
 		metadata_io->outfile = stdout;
 		metadata_io->outfile_default = TRUE;
@@ -369,7 +356,7 @@ status_t arg_set_outfile(arg_s * metadata_io, const char * outfile) {
 	return ST_OK;
 }
 
-status_t arg_set_logfile(arg_s * metadata_io, const char * logfile) {
+status_t arg_set_logfile(arg_s * metadata_io, const char * logfile) { // IDEM OUTFILE
 
 	if(! metadata_io)
 		return ST_NULL_PTR;
@@ -387,7 +374,7 @@ status_t arg_set_logfile(arg_s * metadata_io, const char * logfile) {
 	return ST_OK;
 }
 
-status_t arg_set_maxlen(arg_s * metadata_io, const char * maxlen) {
+status_t arg_set_maxlen(arg_s * metadata_io, const char * maxlen) { // SE CARGA EL MAXIMO DE LINEAS EN LA ESTRUCTURA
 
 	char * end_ptr;
 
@@ -406,11 +393,16 @@ status_t arg_set_maxlen(arg_s * metadata_io, const char * maxlen) {
 	return ST_OK;
 }
 
+
+
+
 /* REQUERIMIENTOS Y CONSECUENCIAS:
 
 * LA ESTRUCTURA SE DEBE CREAR UTILIZANDO LA FUNCION 'arg_create'
 
-* SE DEBE LIBERAR MEMORIA ANTES DE CERRAR EL PROGRAMA
+* SE DEBE LIBERAR MEMORIA ANTES DE CERRAR EL PROGRAMA (!!!)
+
+* SE DEBE VERIFICAR SI LOS ARCHIVOS IN/OUT SON DEFAULT O EXTERNOS (.txt)
 
 * ES NECESARIO INTGRESAR LOS ARGUMENTOS:
 									-PROTOCOL
