@@ -75,7 +75,43 @@ status_t arg_set_maxlen(arg_s *, const char *);
 
 
 
+int main(int argc, const char ** argv) {
 
+	arg_s * metadataaaa;
+	status_t stat;
+
+	metadataaaa = arg_create(&stat);
+
+	if(stat != ST_OK) {
+		puts("no se creo nada");
+		return 0;
+	}
+
+
+	stat = arg_load(argc, argv, metadataaaa);
+
+	printf("%d\n\n", stat);
+
+	if(stat != ST_OK)
+		return 0;
+
+	printf("%d/%d/%d\n%d:%d:%d\n", metadataaaa->time->tm_mday, metadataaaa->time->tm_mon, metadataaaa->time->tm_year + 1900, metadataaaa->time->tm_hour, metadataaaa->time->tm_min, metadataaaa->time->tm_sec);
+
+	printf("%s\n", metadataaaa->help ? "Help" : "No help");
+
+	printf("%s\n", metadataaaa->name);
+
+	printf("Protocolo: %s\n", protocols[metadataaaa->protocol - 1]);
+
+	printf("Default input: %s\n", metadataaaa->infile_default ? "ON" : "OFF");
+	printf("Default output: %s\n", metadataaaa->outfile_default ? "ON" : "OFF");
+	printf("Default error: %s\n", metadataaaa->logfile_default ? "ON" : "OFF");
+
+	printf("Maxlen: %lu\n", metadataaaa->maxlen);
+
+	return 0;
+
+}
 
 
 
