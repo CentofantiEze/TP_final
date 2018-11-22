@@ -92,18 +92,16 @@ status_t arg_load(int argc, const char ** argv, arg_s * metadata_io) {
 
 			if(! strcmp(argv[i], valid_arguments[j])) {
 
-				switch(j) {
+				switch(j/2) {
 
-					case 0 :
-					case 1 :
+					case ARG_TYPE_HELP :
 
 						arg_set_help(metadata_io);
 
 						arg_flags[j/2]++; // SE CARGA LA LECTURA EN EL VECTOR DE FLAGS
 						break;
 
-					case 2 :
-					case 3 :
+					case ARG_TYPE_NAME :
 
 						if(++i == argc) // si -n esta en el ultimo lugar de argv no puede leer el nombre porque no hay nada
 							return ST_INVALID_ARGUMENT;
@@ -116,8 +114,7 @@ status_t arg_load(int argc, const char ** argv, arg_s * metadata_io) {
 						arg_flags[j/2]++;
 						break;
 
-					case 4 :
-					case 5 :
+					case ARG_TYPE_PROTOCOL :
 
 						if(++i == argc)
 							return ST_INVALID_ARGUMENT;
@@ -131,8 +128,7 @@ status_t arg_load(int argc, const char ** argv, arg_s * metadata_io) {
 						break;
 
 
-					case 6 :
-					case 7 :
+					case ARG_TYPE_INFILE :
 
 						if(++i == argc)
 							return ST_INVALID_ARGUMENT;
@@ -145,8 +141,7 @@ status_t arg_load(int argc, const char ** argv, arg_s * metadata_io) {
 						arg_flags[j/2]++;
 						break;
 
-					case 8 :
-					case 9 :
+					case ARG_TYPE_OUTFILE :
 
 						if(++i == argc)
 							return ST_INVALID_ARGUMENT;
@@ -159,8 +154,7 @@ status_t arg_load(int argc, const char ** argv, arg_s * metadata_io) {
 						arg_flags[j/2]++;
 						break;
 
-					case 10 :
-					case 11 :
+					case ARG_TYPE_LOGFILE :
 
 						if(++i == argc)
 							return ST_INVALID_ARGUMENT;
@@ -173,8 +167,7 @@ status_t arg_load(int argc, const char ** argv, arg_s * metadata_io) {
 						arg_flags[j/2]++;
 						break;
 
-					case 12 :
-					case 13 :
+					case ARG_TYPE_MAXLEN :
 
 						if(++i == argc)
 							return ST_INVALID_ARGUMENT;
