@@ -44,7 +44,7 @@ status_t read_ubx(FILE * f, bool_t * eof) { // el puntero está en class
 
 	if(feof(f)) {
 		*eof = TRUE;
-		return ST_ERROR_EOF; // AGREGAR A status_t !!!
+		return ST_ERROR_EOF;
 	}
 
 	/* lee CLASS */
@@ -53,7 +53,7 @@ status_t read_ubx(FILE * f, bool_t * eof) { // el puntero está en class
 			*eof = TRUE;
 			return ST_ERROR_EOF;
 		}
-		return ST_CORRUPT_FILE; // AGREGAR A status_t !!!
+		return ST_CORRUPT_FILE;
 	}
 
 	if(aux == CLASS_TIM_TOS)

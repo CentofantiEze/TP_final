@@ -24,13 +24,13 @@
 #define MODE_READ_BINARY "rb"
 #define MODE_WRITE_TEXT "wt"
 
-#define MAX_MAXLEN 10000
-#define DEFAULT_MAXLEN "10000"
+#define MAX_MAXLEN 100
+#define DEFAULT_MAXLEN "100"
 
 
 typedef enum {FALSE, TRUE} bool_t;
-typedef enum {NMEA = 1, UBX = 2, AUTO = 3} protocol_t;
-typedef enum {ST_OK, ST_NULL_PTR, ST_INVALID_ARGUMENT, ST_NO_MEM, ST_ERR_OPEN_IN_FILE, ST_ERR_OPEN_OUT_FILE, ST_ERR_OPEN_LOG_FILE, ST_NO_PROTOCOL} status_t;
+typedef enum {P_NMEA = 1, P_UBX = 2, P_AUTO = 3} protocol_t;
+typedef enum {ST_OK, ST_NULL_PTR, ST_INVALID_ARGUMENT, ST_NO_MEM, ST_ERR_OPEN_IN_FILE, ST_ERR_OPEN_OUT_FILE, ST_ERR_OPEN_LOG_FILE, ST_NO_PROTOCOL, ST_ERROR_EOF, ST_CORRUPT_FILE} status_t;
 
 const char valid_arguments[][ARG_MAX_LEN] = {
 	"-h", "--help",
@@ -52,6 +52,7 @@ struct arg {
 	char * name;
 	protocol_t protocol;
 	FILE * infile;
+	char * infile_name;
 	FILE * outfile;
 	FILE * logfile;
 	bool_t infile_default;
@@ -134,6 +135,9 @@ status_t arg_load(int argc, const char ** argv, arg_s * metadata_io) {
 							return ST_INVALID_ARGUMENT;
 
 						st = arg_set_infile(metadata_io, argv[i]);
+
+						if(! strcpy(metadata_io->infile_name, argv[i]))
+							return ST_INVALID_ARGUMENT;
 						
 						if(st == ST_NULL_PTR || st == ST_ERR_OPEN_IN_FILE || st == ST_NO_PROTOCOL)
 							return st;
@@ -294,7 +298,7 @@ status_t arg_set_infile(arg_s * metadata_io, const char * infile) { // ABRE EL A
 	if(! metadata_io)
 		return ST_NULL_PTR;
 
-	if(metadata_io->protocol == NMEA) { // SI EL PROTOCOLO ES NMEA SE DEBE ABRIR PARA LECTURA DE TEXTO
+	if(metadata_io->protocol == P_NMEA) { // SI EL PROTOCOLO ES NMEA SE DEBE ABRIR PARA LECTURA DE TEXTO
 
 		if(! strcmp(infile, DEFAULT_FILE_STR)) { // SI EL NOMBRE DEL ARCHIVO ES EL RESERVADO PARA DEFAULT '-' EL ARCHIVO DE LECTURA ES STDIN
 			
@@ -306,7 +310,7 @@ status_t arg_set_infile(arg_s * metadata_io, const char * infile) { // ABRE EL A
 		if((metadata_io->infile = fopen(infile, MODE_READ_TEXT)) == NULL)
 			return ST_ERR_OPEN_IN_FILE;
 
-	} else if(metadata_io->protocol == UBX) { // SI EL PROTOCOLO ES UBX SE DEBE ABRIR PARA LECTURA BINARIA
+	} else if(metadata_io->protocol == P_UBX) { // SI EL PROTOCOLO ES UBX SE DEBE ABRIR PARA LECTURA BINARIA
 
 		if(! strcmp(infile, DEFAULT_FILE_STR)) { // SI EL NOMBRE ES '-' SE REABRE STDIN PARA LECTURA BINARIA (PREGUNTAR)
 			
@@ -320,7 +324,7 @@ status_t arg_set_infile(arg_s * metadata_io, const char * infile) { // ABRE EL A
 		if((metadata_io->infile = fopen(infile, MODE_READ_BINARY)) == NULL)
 			return ST_ERR_OPEN_IN_FILE;
 
-	} else if(metadata_io->protocol == AUTO) { // SI EL PROTOCOLO ES AUTO NO SE REALIZA NINGUNA ACCION, EL ARCHIVO DEBE ABRIRSE UNA VEZ DETECTADO EL PROTOCOLO.
+	} else if(metadata_io->protocol == P_AUTO) { // SI EL PROTOCOLO ES AUTO NO SE REALIZA NINGUNA ACCION, EL ARCHIVO DEBE ABRIRSE UNA VEZ DETECTADO EL PROTOCOLO.
 
 	} else { // SI EL PROTOCOLO NO FUE ASIGNADO SE DEVUELVE ERROR
 
@@ -395,7 +399,7 @@ status_t arg_set_maxlen(arg_s * metadata_io, const char * maxlen) { // SE CARGA 
 
 * SE DEBE LIBERAR MEMORIA ANTES DE CERRAR EL PROGRAMA (!!!)
 
-* SE DEBE VERIFICAR SI LOS ARCHIVOS IN/OUT SON DEFAULT O EXTERNOS (.txt)
+* SE DEBE VERIFICAR SI LOS ARCHIVOS IN/OUT SON STANDARD O EXTERNOS (.txt)
 
 * ES NECESARIO INTGRESAR LOS ARGUMENTOS:
 									-PROTOCOL

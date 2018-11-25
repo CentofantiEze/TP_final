@@ -24,8 +24,8 @@
 #define MODE_READ_BINARY "rb"
 #define MODE_WRITE_TEXT "wt"
 
-#define MAX_MAXLEN 10000
-#define DEFAULT_MAXLEN "10000"
+#define MAX_MAXLEN 100
+#define DEFAULT_MAXLEN "100"
 
 
 typedef enum {FALSE, TRUE} bool_t;

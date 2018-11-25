@@ -63,7 +63,13 @@ struct nav_posllh {
 
 };
 
-
+struct tkpt {
+	struct tm tkpt_time;
+	int tkpt_msec;
+	double latitude;
+	double longitude;
+	double elevation;
+}
 
 typedef struct gga gga_s;
 typedef struct rmc rmc_s;
@@ -71,3 +77,4 @@ typedef struct zda zda_s;
 typedef struct nav_pvt nav_pvt_s;
 typedef struct tim_tos tim_tos_s;
 typedef struct nav_posllh nav_posllh_s;
+typedef struct tkpt tkpt_s;
