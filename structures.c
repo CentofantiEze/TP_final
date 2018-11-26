@@ -28,6 +28,7 @@ struct rmc {
 
 struct zda {
 	struct tm zda_time;
+	int zda_time_milisec;
 	int time_zone;
 	int diff_minutes;
 	bool_t time_flag;
