@@ -7,7 +7,7 @@ struct tkpt {
 	double latitude;
 	double longitude;
 	double elevation;
-}
+};
 
 typedef struct tkpt tkpt_s;
 

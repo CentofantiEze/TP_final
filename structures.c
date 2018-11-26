@@ -30,6 +30,7 @@ struct zda {
 	struct tm zda_time;
 	int time_zone;
 	int diff_minutes;
+	bool_t time_flag;
 };
 
 struct nav_pvt {

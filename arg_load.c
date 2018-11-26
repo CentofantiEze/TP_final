@@ -136,6 +136,9 @@ status_t arg_load(int argc, const char ** argv, arg_s * metadata_io) {
 
 						st = arg_set_infile(metadata_io, argv[i]);
 
+						if((metadata_io->infile_name = (char *)malloc(strlen(argv[i]) * sizeof(char))) == NULL)
+							return ST_NO_MEM;
+
 						if(! strcpy(metadata_io->infile_name, argv[i]))
 							return ST_INVALID_ARGUMENT;
 						
