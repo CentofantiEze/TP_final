@@ -1,4 +1,15 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
+#include "arg_load.c"
+#include "structures.c"
+#include "trackpoint.c"
+
+#define SYNC_1 0
+#define SYNC_2 0
+#define CHAR_INIT_NMEA '$'
 
 #define MAX_PROCESS_T 3
 
@@ -14,7 +25,16 @@
 typedef enum {PROCESS_ZERO, PROCESS_ONE, PROCESS_TWO, PROCESS_ALL} process_t;
 
 
-int main(int argc, const char argv **) {
+status_t protocol_detect(arg_s * metadata);
+status_t data_structs_create(arg_s * metadata, void * data_structs[]);
+void close_files(arg_s * metadata);
+void free_metadata(arg_s * metadata);
+List * list_delete(List * list);
+void free_data_structs(void * data_structs[]);
+status_t gpx_process(List *, process_t);
+
+
+int main(int argc, const char ** argv) {
 
 	arg_s * metadata = NULL;
 	status_t st;
@@ -43,11 +63,11 @@ int main(int argc, const char argv **) {
 	}
 
 	if(metadata->protocol == P_AUTO)
-		if((st = protocol_detect(metadata)) != ST_OK)
+		if((st = protocol_detect(metadata)) != ST_OK) {
 			free_metadata(metadata);
 			close_files(metadata);
 			return 0;
-
+		}
 
 	if(list_create(list) != ST_OK) {
 		free_metadata(metadata);
@@ -67,25 +87,27 @@ int main(int argc, const char argv **) {
 
 	while(get_trackpoint[data_protocol](metadata->infile, data_structs)) { // preguntar
 
-		if((st = list_append(list, data_structs[DATA_TKPT_S], metadata->maxlen)) != ST_OK)
+		if((st = list_append_tkpt(list, data_structs[DATA_TKPT_S], metadata->maxlen)) != ST_OK) {
 			free_metadata(metadata);
 			close_files(metadata);
 			list_delete(list);
 			free_data_structs(data_structs);
 			return st;
+		}
 
 		ran = rand() % MAX_PROCESS_T;
 
-		if((st = gpx_process(list, ran)) != ST_OK) // ####
+		if((st = gpx_process(list, ran)) != ST_OK) { // ####
 			free_metadata(metadata);
 			close_files(metadata);
 			list_delete(list);
 			free_data_structs(data_structs);
 			return st;
+		}
 
 	}
 
-	gpx_process(list, PROCESS_ALL)
+	gpx_process(list, PROCESS_ALL);
 
 	free_metadata(metadata);
 	close_files(metadata);
@@ -104,7 +126,7 @@ status_t gpx_process(List *, proces_t);
 
 */
 
-status_t protocol_detect(metadata_t * metadata) {
+status_t protocol_detect(arg_s * metadata) {
 
 	unsigned char aux;
 
@@ -117,7 +139,7 @@ status_t protocol_detect(metadata_t * metadata) {
 
 	do {
 
-		while(fread(&aux, sizeof(uchar), 1, metadata->infile) == 1 && aux != SYNC_1 && aux != CHAR_INIT_NMEA);
+		while(fread(&aux, sizeof(unsigned char), 1, metadata->infile) == 1 && aux != SYNC_1 && aux != CHAR_INIT_NMEA);
 		
 		if(aux == CHAR_INIT_NMEA) {
 			metadata->protocol = P_NMEA;
@@ -129,7 +151,7 @@ status_t protocol_detect(metadata_t * metadata) {
 		if(aux != SYNC_1)
 			return ST_CORRUPT_FILE;
 
-	} while(fread(&aux, sizeof(uchar), 1, metadata->infile) == 1 && aux != SYNC_2 && aux != CHAR_INIT_NMEA);
+	} while(fread(&aux, sizeof(unsigned char), 1, metadata->infile) == 1 && aux != SYNC_2 && aux != CHAR_INIT_NMEA);
 
 	if(aux == CHAR_INIT_NMEA) {
 		metadata->protocol = P_NMEA;
@@ -250,7 +272,7 @@ List * list_delete(List * list) {
 		return NULL;
 	}
 
-	aux1 = l->first_node;
+	aux1 = list->first_node;
 
 	while(aux1->next) {
 		aux2 = aux1;
@@ -273,6 +295,15 @@ void free_data_structs(void * data_structs[]) {
 		return;
 
 	for(i = 0; i < DATA_S_TYPES; i++)
-		free(data_structs[i])
+		free(data_structs[i]);
 
 }
+
+status_t gpx_process(List *, process_t) {
+
+	return ST_OK;
+}
+
+
+
+

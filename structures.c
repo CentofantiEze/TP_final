@@ -1,5 +1,5 @@
-typedef enum {INVALID_FIX, GPS_FIX, DGPS_FIX, PPS_FIX, RTK_FIX, FLOAT_RTK_FIX, ESTIMATED_FIX, MANUAL_FIX, SIMULATION_FIX} fix_quality_gga_t;
-typedef enum {NO_FIX, DEAD_RECKONING_FIX, 2D_FIX, 3D_FIX, COMBINED_FIX, TIME_ONLY_FIX} fix_pvt_t;
+typedef enum {FIX_INVALID, FIX_GPS, FIX_DGPS, FIX_PPS, FIX_RTK, FIX_FLOAT_RTK, FIX_ESTIMATED, FIX_MANUAL, FIX_SIMULATION} fix_quality_gga_t;
+typedef enum {FIX_NO, FIX_DEAD_RECKONING, FIX_2D, FIX_3D, FIX_COMBINED, FIX_TIME_ONLY} fix_pvt_t;
 typedef enum {A, V} rmc_status_t;
 
 struct gga {
@@ -65,13 +65,6 @@ struct nav_posllh {
 
 };
 
-struct tkpt {
-	struct tm tkpt_time;
-	int tkpt_msec;
-	double latitude;
-	double longitude;
-	double elevation;
-}
 
 typedef struct gga gga_s;
 typedef struct rmc rmc_s;
@@ -79,4 +72,3 @@ typedef struct zda zda_s;
 typedef struct nav_pvt nav_pvt_s;
 typedef struct tim_tos tim_tos_s;
 typedef struct nav_posllh nav_posllh_s;
-typedef struct tkpt tkpt_s;

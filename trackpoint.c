@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 struct tkpt {
-	struct tm tkpt_time;
+	struct tm * tkpt_time;
 	int tkpt_msec;
 	double latitude;
 	double longitude;
@@ -24,9 +24,9 @@ struct list {
 typedef struct node Node;
 typedef struct list List;
 
-status_t list_create(List ** l);
-status_t node_create(Node ** node, void * data, void *(*clone)(void *));
-status_t list_append(List * l, void * data, void *(*clone)(void *));
+status_t list_create(List * l);
+status_t node_create(Node ** node, void * data, tkpt_s *(*clone)(tkpt_s *));
+status_t list_append_tkpt(List * l, void * data, size_t maxlen);
 void * list_pop_left(List * l, status_t *);
 
 
@@ -43,7 +43,7 @@ status_t list_create(List * l) {
 }
 
 
-status_t node_create(Node ** node, void * data, void *(*clone)(void *)) {
+status_t node_create(Node ** node, void * data, tkpt_s *(*clone)(tkpt_s *)) {
 
 	if(! node || ! data || ! clone)
 		return ST_NULL_PTR;
@@ -51,9 +51,10 @@ status_t node_create(Node ** node, void * data, void *(*clone)(void *)) {
 	if((*node = (Node *)calloc(1, sizeof(Node))) == NULL)
 		return ST_NO_MEM;
 
-	if((*node)->data = (*clone)(data) == NULL)
+	if(((*node)->data = clone(data)) == NULL) {
 		free(*node);
 		return ST_NO_MEM;
+	}
 
 	return ST_OK;	
 
@@ -77,15 +78,15 @@ tkpt_s * clone_tkpt(tkpt_s * data) {
 status_t list_append_tkpt(List * l, void * data, size_t maxlen) {
 
 	status_t st;
-	Node * new_node, aux;
+	Node * new_node, * aux;
 
-	if(! l || ! data || ! clone)
+	if(! l || ! data)
 		return ST_NULL_PTR;
 
 	if(l->len == maxlen)
 		return ST_FULL_LIST;
 
-	if(st = node_create(&new_node, data, &clone_tkpt) != ST_OK)
+	if((st = node_create(&new_node, data, &clone_tkpt)) != ST_OK)
 		return st;
 
 	if(! l->first_node) {
@@ -94,7 +95,7 @@ status_t list_append_tkpt(List * l, void * data, size_t maxlen) {
 		return ST_OK;
 	}
 
-	aux = l->first_node
+	aux = l->first_node;
 
 	while(aux->next)
 		aux = aux->next;
