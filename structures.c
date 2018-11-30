@@ -17,8 +17,9 @@ struct gga {
 
 struct rmc {
 	struct tm rmc_time;	
+	int rmc_time_milisec; //AGREGADO
 	rmc_status_t status;
-	double latitude; // el indicador (N o S) se expresa según la latitud sea pos o neg
+	double latitude; 
 	double longitude;
 	double speed;
 	double tracking_angle;
