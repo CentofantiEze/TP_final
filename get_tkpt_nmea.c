@@ -4,7 +4,7 @@
 #define DATA_TKPT_S 3
 
 #define GGA_FIELDS 12
-#define ZDA_FIELDS 4
+#define ZDA_FIELDS 6
 #define RMC_FIELDS 10
 
 #define GGA_TIME_FIELD 0
@@ -17,6 +17,23 @@
 #define GGA_HDOP_FIELD 7
 #define GGA_ELEV_FIELD 8
 #define GGA_UNDULATION_FIELD 10
+
+#define ZDA_TIME_FIELD 0
+#define ZDA_Y_FIELD 1
+#define ZDA_M_FIELD 2
+#define ZDA_D_FIELD 3
+#define ZDA_TIMEZONE_FIELD 4
+#define ZDA_DIFF_FIELD 5
+
+#define RMC_TIME_FIELD 0
+#define RMC_STATUS_FIELD 1
+#define RMC_LAT_FIELD 2
+#define RMC_LAT_N_S_FIELD 3
+#define RMC_LONG_FIELD 4
+#define RMC_LONG_W_E_FIELD 3
+#define RMC_SPEED_FIELD 5
+#define RMC_ANGLE_FIELD 6
+#define RMC_MAGNETIC_FIELD 8
 
 #define CHAR_INIT_NMEA '$'
 #define CHAR_END_NMEA '*'
@@ -39,6 +56,7 @@
 #define MINUTES_DIGITS 2
 #define SECONDS_DIGITS 2
 #define MILISECONDS_DIGITS 3
+#define MILISECONDS_DIGITS_ZDA 2
 
 /* macros de latitud y longitud */
 #define NMEA_LATITUDE_DEGREES 2
@@ -70,6 +88,37 @@
 #define HDOP_DIGITS 2
 #define ELEVATION_DIGITS 2
 #define UNDULATION_OF_GEOID_DIGITS 2
+#define RMC_STATUS_A 0
+#define RMC_STATUS_V 1
+#define RMC_CHAR_A 'A'
+#define RMC_CHAR_V 'V'
+
+status_t get_tkpt_nmea(FILE * f, void * data_structs[]);
+status_t hexstring_2_integer(int, int, int *);
+status_t get_nmea_data(unsigned int, char ***, FILE *, int *); 
+status_t gga_time_of_fix(char *, gga_s *, arg_s *);
+status_t latitude(char *, char *, void * data_structs[]);
+status_t longitude(char *, char *, void * data_structs[]);
+status_t gga_quality_of_fix(char *, gga_s *);
+status_t gga_num_of_satellites(char *, gga_s *);
+status_t gga_hdop(char *, gga_s *);
+status_t gga_elevation(char *, gga_s *);
+status_t gga_undulation_of_geoid(char *, gga_s *);
+status_t zda_time_of_fix(char *, char *, char *, char *, zda_s *, arg_s *);
+status_t zda_time_zone(char *, zda_s *);
+status_t zda_time_difference(char *, zda_s *);
+status_t rmc_time_of_fix(char *, rmc_s *, arg_s *);
+status_t rmc_speed(char *, rmc_s *);
+status_t rmc_angle(char *, rmc_s *);
+status_t rmc_magnetic_deviation(char *, rmc_s *);
+
+status_t read_nmea_gga(FILE *, tkpt_s *, gga_s *, int);
+status_t read_nmea_zda(FILE *, tkpt_s *, zda_s *, int);
+status_t read_nmea_rmc(FILE *, tkpt_s *, rmc_s *, int);
+status_t gga2tkpt(tkpt_s *, gga_s *);
+status_t zda2tkpt(tkpt_s *, zda_s *);
+status_t rmc2tkpt(tkpt_s *, rmc_s *);
+
 
 
 status_t get_tkpt_nmea(FILE * f, void * data_structs[]) {
@@ -252,16 +301,16 @@ status_t gga_time_of_fix(char * s, gga_s * gga, arg_s * arg) {
 	(gga->gga_time).tm_min = minutes;   
 	(gga->gga_time).tm_sec = seconds;
 	gga->gga_time_milisec = miliseconds;
-	(gga->gga_time).tm_year = arg->time->tm_year; 
-	(gga->gga_time).tm_mon = arg->time->tm_mon;
-	(gga->gga_time).tm_mday = arg->time->tm_mday;
+	//(gga->gga_time).tm_year = arg->time->tm_year; 
+	//(gga->gga_time).tm_mon = arg->time->tm_mon;
+	//(gga->gga_time).tm_mday = arg->time->tm_mday;
 
 	return ST_OK;
 }
 
 /*[19] Lee la latitud de la sentencia NMEA y la guarda en una variable double (trackpt.latitude). Recibe el puntero pos_ptr apuntado al primer caracter de la latitud.
 	   Devuelve: ST_OK si la lectura se realiza correctamente y ST_NUMERICAL_ERROR si los datos son invalidos.*/
-status_t latitude(char * str1, char * str2, gga_s * gga) { 
+status_t latitude(char * str1, char * str2, void * data_structs[]) { 
 
 	char aux[STR_NMEA_DATA_DIGITS]
 	double lat;
@@ -299,18 +348,18 @@ status_t latitude(char * str1, char * str2, gga_s * gga) {
 	}
 	
 	lat = south_flag * (degrees + minutes / CONVERSION_FACTOR_MINUTES);
-	gga->latitude = lat;
+	(*data_structs)->latitude = lat; // esto está bien??
 
 
 	return ST_OK;
 }
 
-status_t longitude(char * str1, char * str2, gga_s * gga) {
+status_t longitude(char * str1, char * str2, void * data_structs[]) {
 
-	char aux[STR_NMEA_DATA_DIGITS]
+	char aux[STR_NMEA_DATA_DIGITS];
 	double lon;
 	char *end_ptr;
-	size_t degrees, i;
+	unsigned int degrees;
 	int west_flag = 1, read_digits;
 	float minutes;
 
@@ -342,7 +391,7 @@ status_t longitude(char * str1, char * str2, gga_s * gga) {
 
 	
 	lon = west_flag * (degrees + minutes / CONVERSION_FACTOR_MINUTES);
-	gga->longitude = lon;
+	(*data_structs)->longitude = lon; // esto está bien??
 
 	return ST_OK;
 }
@@ -376,13 +425,13 @@ status_t gga_quality_of_fix(char * s, gga_s * gga) {
 status_t gga_num_of_satellites(char * s, gga_s * gga) {
 
 	char *end_ptr;
-	size_t i, satellites;
+	unsigned int satellites;
 
 	if(!s || !gga) 
 		return ST_NULL_PTR;
 
 
-	satellites = strtoul(aux, &end_ptr, 10);
+	satellites = strtoul(s, &end_ptr, 10);
 	if(*end_ptr != '\0') {
 		return ST_INVALID_NUMBER_ERROR;
 	}
@@ -398,8 +447,7 @@ status_t gga_num_of_satellites(char * s, gga_s * gga) {
 /*[26] Lee hdop y la carga en la estructura.
 	   Devuelve: ST_OK si la lectura se realiza correctamente y ST_NUMERICAL_ERROR si los datos son invalidos.*/
 status_t gga_hdop(char * s, gga_s * gga) {
-	
-	size_t i;
+
 	char *end_ptr;
 
 	if(!s || !gga) {
@@ -419,8 +467,8 @@ status_t gga_hdop(char * s, gga_s * gga) {
 /*[27] Lee la elevacion y la carga en la estructura.
 	   Devuelve: ST_OK si la lectura se realiza correctamente y ST_NUMERICAL_ERROR si los datos son invalidos.*/
 status_t gga_elevation(char * s, gga_s * gga) {
-	
-	size_t i;
+
+
 	char *end_ptr;
 
 	if(!s || !gga) 
@@ -441,15 +489,14 @@ status_t gga_elevation(char * s, gga_s * gga) {
 /*[28] Lee la separacion del geoide y la carga en la estructura.
 	   Devuelve: ST_OK si la lectura se realiza correctamente y ST_NUMERICAL_ERROR si los datos son invalidos.*/
 status_t gga_undulation_of_geoid(char * s, gga_s * gga) {
-	
-	size_t i;
+
 	char *aux_ptr;
 
-	if(!s || !undulation) {
+	if(!s || !gga) {
 		return ST_NULL_PTR;
 	}
 
-	undulation = strtof(aux, &aux_ptr);
+	undulation = strtof(s, &aux_ptr);
 	if(*aux_ptr != '\0' && *aux_ptr != '\n') {
 		return ST_NUMERICAL_ERROR;
 	}
@@ -459,8 +506,245 @@ status_t gga_undulation_of_geoid(char * s, gga_s * gga) {
 	return ST_OK;
 }
 
+status_t zda_time_of_fix(char * str1, char * str2, char * str3, char * str4, zda_s * zda, arg_s * arg) {
+	
+	char aux[STR_NMEA_DATA_DIGITS], *end_ptr;
+	int hours, minutes, seconds, miliseconds, year, month, day, read_digits;
+	size_t i;
+
+	if(!str1 || !str2 || !str3 || !str4 || !gga || !arg) {
+		return ST_NULL_PTR;
+	}
+
+	strncpy(aux, str1, HOUR_DIGITS); // validar
+	read_digits = HOUR_DIGITS;
+	aux[read_digits] = '\0';
+
+	hours = strtoul(aux, &end_ptr, 10);
+	if(*end_ptr != '\0') {
+		return ST_NUMERICAL_ERROR;	
+	}
+
+	strncpy(aux, str1 + read_digit, MINUTES_DIGITS); // validar
+	read_digits += MINUTES_DIGITS;
+	aux[read_digits] = '\0';
+
+	minutes = strtoul(aux, &end_ptr, 10);
+	if(*end_ptr != '\0') {
+		return ST_NUMERICAL_ERROR;	
+	}
+
+	strncpy(aux, str1 + read_digit, SECONDS_DIGITS); // validar
+	read_digits += SECONDS_DIGITS;
+	aux[read_digits] = '\0';
+
+	seconds = strtof(aux, &end_ptr);
+	if(*end_ptr != '\0') {
+		return ST_NUMERICAL_ERROR;
+	}
+	
+	strncpy(aux, str1 + read_digit + 1, MILISECONDS_DIGITS); // validar, sumo uno por el punto
+	read_digits += MILISECONDS_DIGITS + 1;
+	aux[read_digits] = '\0';
+
+	miliseconds = strtoul(aux, &end_ptr, 10);
+	if(*end_ptr != '\0') {
+		return ST_NUMERICAL_ERROR;
+	}
+
+	year = strtof(str2, &aux_ptr);
+	if(*aux_ptr != '\0' && *aux_ptr != '\n') {
+		return ST_NUMERICAL_ERROR;
+	}
+	month = strtof(str3, &aux_ptr);
+	if(*aux_ptr != '\0' && *aux_ptr != '\n') {
+		return ST_NUMERICAL_ERROR;
+	}
+	day = strtof(str4, &aux_ptr);
+	if(*aux_ptr != '\0' && *aux_ptr != '\n') {
+		return ST_NUMERICAL_ERROR;
+	}
 
 
+	(zda->zda_time).tm_hour = hours;
+	(zda->zda_time).tm_min = minutes;   
+	(zda->zda_time).tm_sec = seconds;
+	zda->zda_time_milisec = miliseconds;
+	(zda->zda_time).tm_year = year; 
+	(zda->zda_time).tm_mon = month;
+	(zda->zda_time).tm_mday = day;
+
+	return ST_OK;
+}
+
+status_t zda_time_zone(char * s, zda_s * zda) {
+
+	char *aux_ptr;
+	int time_zone;
+
+	if(!s || !zda) {
+		return ST_NULL_PTR;
+	}
+
+	timezone = strtol(s, &aux_ptr, 10);
+	if(*aux_ptr != '\0' && *aux_ptr != '\n') {
+		return ST_NUMERICAL_ERROR;
+	}
+
+	zda->time_zone = time_zone;
+
+	return ST_OK;
+}
+
+status_t zda_time_difference(char * s, zda_s * zda) {
+
+	char *aux_ptr;
+	int time_diff;
+
+	if(!s || !zda) {
+		return ST_NULL_PTR;
+	}
+
+	timezone = strtol(s, &aux_ptr, 10);
+	if(*aux_ptr != '\0' && *aux_ptr != '\n') {
+		return ST_NUMERICAL_ERROR;
+	}
+
+	zda->diff_minutes = time_diff;
+
+	return ST_OK;
+}
+
+status_t rmc_time_of_fix(char * s, rmc_s * rmc, arg_s * arg) {
+	
+	char aux[STR_NMEA_DATA_DIGITS], *end_ptr;
+	int hours, minutes, seconds, miliseconds, read_digits;
+	size_t i;
+
+	if(!s || !gga || !arg) {
+		return ST_NULL_PTR;
+	}
+
+	strncpy(aux, s, HOUR_DIGITS); // validar
+	read_digits = HOUR_DIGITS;
+	aux[read_digits] = '\0';
+
+	hours = strtoul(aux, &end_ptr, 10);
+	if(*end_ptr != '\0') {
+		return ST_NUMERICAL_ERROR;	
+	}
+
+	strncpy(aux, s + read_digit, MINUTES_DIGITS); // validar
+	read_digits += MINUTES_DIGITS;
+	aux[read_digits] = '\0';
+
+	minutes = strtoul(aux, &end_ptr, 10);
+	if(*end_ptr != '\0') {
+		return ST_NUMERICAL_ERROR;	
+	}
+
+	strncpy(aux, s + read_digit, SECONDS_DIGITS); // validar
+	read_digits += SECONDS_DIGITS;
+	aux[read_digits] = '\0';
+
+	seconds = strtof(aux, &end_ptr);
+	if(*end_ptr != '\0') {
+		return ST_NUMERICAL_ERROR;
+	}
+	
+	strncpy(aux, s + read_digit + 1, MILISECONDS_DIGITS); // validar, sumo uno por el punto
+	read_digits += MILISECONDS_DIGITS + 1;
+	aux[read_digits] = '\0';
+
+	miliseconds = strtoul(aux, &end_ptr, 10);
+	if(*end_ptr != '\0') {
+		return ST_NUMERICAL_ERROR;
+	}
+
+	(rmc->rmc_time).tm_hour = hours;
+	(rmc->rmc_time).tm_min = minutes;   
+	(rmc->rmc_time).tm_sec = seconds;
+	rmc->rmc_time_milisec = miliseconds;
+	//(zda->zda_time).tm_year = arg->time->tm_year; 
+	//(zda->zda_time).tm_mon = arg->time->tm_mon;
+	//(zda->zda_time).tm_mday = arg->time->tm_mday;
+
+	return ST_OK;
+}
+
+status_t rmc_status(char * s, rmc_s * rmc) {
+
+	if(!s || !zda) {
+		return ST_NULL_PTR;
+	}
+
+	if(s[0] == RMC_CHAR_A)
+		rmc->status = RMC_STATUS_A;
+	else if(s[0] == RMC_CHAR_V)
+		rmc->status = RMC_STATUS_V;
+	else
+		/* Tirar error */
+
+	return ST_OK;
+}
+
+status_t rmc_speed(char * s, rmc_s * rmc) {
+
+	char *aux_ptr;
+	double speed;
+
+	if(!s || !zda) {
+		return ST_NULL_PTR;
+	}
+
+	speed = strtof(s, &aux_ptr);
+	if(*aux_ptr != '\0' && *aux_ptr != '\n') {
+		return ST_NUMERICAL_ERROR;
+	}
+
+	rmc->speed = speed;
+
+	return ST_OK;
+}
+
+status_t rmc_angle(char * s, rmc_s * rmc) {
+
+	char *aux_ptr;
+	double angle;
+
+	if(!s || !zda) {
+		return ST_NULL_PTR;
+	}
+
+	angle = strtof(s, &aux_ptr);
+	if(*aux_ptr != '\0' && *aux_ptr != '\n') {
+		return ST_NUMERICAL_ERROR;
+	}
+
+	rmc->tracking_angle = angle;
+
+	return ST_OK;
+}
+
+
+status_t rmc_magnetic_deviation(char * s, rmc_s * rmc) {
+
+	char *aux_ptr;
+	double magnetic;
+
+	if(!s || !zda) {
+		return ST_NULL_PTR;
+	}
+
+	magnetic = strtof(s, &aux_ptr);
+	if(*aux_ptr != '\0' && *aux_ptr != '\n') {
+		return ST_NUMERICAL_ERROR;
+	}
+
+	rmc->magnetic_deviation = magnetic;
+
+	return ST_OK;
+}
 
 status_t read_nmea_gga(FILE * f, tkpt_s * tkpt, gga_s * gga, int checksum) {
 	
@@ -490,7 +774,11 @@ status_t read_nmea_zda(FILE * f, tkpt_s * tkpt, zda_s * zda, int checksum) {
 		return ST_NULL_PTR;
 	
 	get_nmea_data(ZDA_FIELDS, &s, f, &checksum); // validar
+	zda_time_of_fix(s[ZDA_TIME_FIELD], s[ZDA_Y_FIELD], s[ZDA_M_FIELD], s[ZDA_D_FIELD], zda, struct tm arg); // chequear BIEN lo de struct tm arg (está mal, pero cómo iría?)
+	zda_time_zone(s[ZDA_TIMEZONE_FIELD], zda);
+	zda_time_difference(S[ZDA_DIFF_FIELD], zda);
 
+	return ST_OK;
 
 }
 
@@ -502,7 +790,15 @@ status_t read_nmea_rmc(FILE * f, tkpt_s * tkpt, rmc_s * rmc, int checksum) {
 		return ST_NULL_PTR;
 	
 	get_nmea_data(RMC_FIELDS, &s, f, &checksum); // validar
+	rmc_time_of_fix(s[RMC_TIME_FIELD], rmc, struct tm arg);
+	rmc_status(s[RMC_STATUS_FIELD], rmc);
+	latitude(s[RMC_LAT_FIELD], s[RMC_LAT_N_S_FIELD], rmc);
+	longitude(s[RMC_LONG_FIELD], s[RMC_LONG_W_E_FIELD], rmc);
+	rmc_speed(s[RMC_SPEED_FIELD], rmc);
+	rmc_angle(s[RMC_ANGLE_FIELD], rmc);
+	rmc_magnetic_deviation(s[RMC_MAGNETIC_FIELD], rmc);
 
+	return ST_OK;
 
 }
 
