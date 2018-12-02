@@ -1,38 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <string.h>
+status_t arg_load(int argc, const char ** argv, arg_s * metadata_io) {
 
-#define ARG_MAX_LEN 12 // CANTIDAD MAXIMA DE CARACTERES DE LOS ARGUMENTOS
-#define ARG_NUM 14 // CANTIDAD DE ARGUMENTOS
-#define PROTOCOL_MAX_LEN 5 // CANTIDAD MAXIMA DE CARACTERES DE LOS TIPOS DE PROTOCOLO
-#define PROTOCOL_NUM 3 // CANTIDAD DE PROTOCOLOS
-#define ARG_TYPES 7 // CANTIDAD DE TIPOS DE ARGUMENTOS
-// SEPARO LOS ARGUMENTOS EN 7 TIPOS. SE UTILIZA PARA ASEGURAR QUE NO SE INGRESE UN MISMO TIPO DE ARGUMENTO MAS DE UNA VEZ
-#define ARG_TYPE_HELP 0
-#define ARG_TYPE_NAME 1
-#define ARG_TYPE_PROTOCOL 2
-#define ARG_TYPE_INFILE 3
-#define ARG_TYPE_OUTFILE 4
-#define ARG_TYPE_LOGFILE 5
-#define ARG_TYPE_MAXLEN 6
-
-#define DEFAULT_NAME "Default_name"
-#define DEFAULT_FILE_STR "-"
-
-#define MODE_READ_TEXT "rt"
-#define MODE_READ_BINARY "rb"
-#define MODE_WRITE_TEXT "wt"
-
-#define MAX_MAXLEN 100
-#define DEFAULT_MAXLEN "100"
-
-
-typedef enum {FALSE, TRUE} bool_t;
-typedef enum {P_NMEA = 1, P_UBX = 2, P_AUTO = 3} protocol_t;
-typedef enum {ST_OK, ST_NULL_PTR, ST_INVALID_ARGUMENT, ST_NO_MEM, ST_ERR_OPEN_IN_FILE, ST_ERR_OPEN_OUT_FILE, ST_ERR_OPEN_LOG_FILE, ST_NO_PROTOCOL, ST_ERROR_EOF, ST_CORRUPT_FILE, ST_FULL_LIST} status_t;
-
-const char valid_arguments[][ARG_MAX_LEN] = {
+	size_t i, j;
+	status_t st;
+	time_t actual_time = time(NULL);
+	int arg_flags[ARG_TYPES] = {0}; // Se utiliza para saber que argumentos ya se procesaron, para evitar repeticiones
+	const char valid_arguments[][ARG_MAX_LEN] = {
 	"-h", "--help",
 	"-n", "--name",
 	"-p", "--protocol",
@@ -40,48 +12,7 @@ const char valid_arguments[][ARG_MAX_LEN] = {
 	"-o", "--outfile",
 	"-l", "--logfile",
 	"-m", "--maxlen"
-};
-
-const char protocols[][PROTOCOL_MAX_LEN] = {"nmea", "ubx", "auto"};
-
-//LAS VARIABLES DEFAULT INDICAN SI ALGUNO DE LOS ARCHIVOS ES DEFAULT (PARA NO CERRARLOS LUEGO) STDIN, STDOUT, STDERR
-
-struct arg {
-	struct tm * time;
-	bool_t help;
-	char * name;
-	protocol_t protocol;
-	FILE * infile;
-	char * infile_name;
-	FILE * outfile;
-	FILE * logfile;
-	bool_t infile_default;
-	bool_t outfile_default;
-	bool_t logfile_default;
-	size_t maxlen;
-};
-
-typedef struct arg arg_s;
-
-
-arg_s * arg_create(status_t *);
-status_t arg_load(int  , const char **, arg_s *);
-status_t arg_set_help(arg_s *);
-status_t arg_set_name(arg_s *, const char *);
-status_t arg_set_protocol(arg_s *, const char *);
-status_t arg_set_infile(arg_s *, const char *);
-status_t arg_set_outfile(arg_s *, const char *);
-status_t arg_set_logfile(arg_s *, const char *);
-status_t arg_set_maxlen(arg_s *, const char *);
-
-
-
-status_t arg_load(int argc, const char ** argv, arg_s * metadata_io) {
-
-	size_t i, j;
-	status_t st;
-	time_t actual_time = time(NULL);
-	int arg_flags[ARG_TYPES] = {0}; // Se utiliza para saber que argumentos ya se procesaron, para evitar repeticiones
+	};
 
 
 	if(! metadata_io)
@@ -280,6 +211,7 @@ status_t arg_set_name(arg_s * metadata_io, const char * name) { // PIDE MEMORIA 
 status_t arg_set_protocol(arg_s * metadata_io, const char * protocol) { // CARGA EL PROTOCOLO EN LA ESTRUCTURA 
 
 	size_t i;
+	const char protocols[][PROTOCOL_MAX_LEN] = {"nmea", "ubx", "auto"};
 
 	if(! metadata_io)
 		return ST_NULL_PTR;
@@ -393,6 +325,36 @@ status_t arg_set_maxlen(arg_s * metadata_io, const char * maxlen) { // SE CARGA 
 	return ST_OK;
 }
 
+void close_files(arg_s * metadata) {
+
+	if(! metadata)
+		return;
+
+	if(! metadata->infile_default)
+		fclose(metadata->infile);
+	else if(metadata->protocol == P_UBX)
+		freopen(NULL, "rt", stdin);
+
+	if(! metadata->outfile_default)
+		fclose(metadata->outfile);
+
+	if(! metadata->logfile_default)
+		fclose(metadata->logfile);
+
+}
+
+
+void free_metadata(arg_s * metadata) {
+
+	if(! metadata)
+		return;
+
+	free(metadata->name);
+	free(metadata->infile_name);
+	free(metadata);
+	metadata = NULL;
+
+}
 
 
 
