@@ -35,6 +35,8 @@ int main(int argc, const char ** argv) {
 		return st;
 	}
 
+	/***************************************************************************/
+
 	if(metadata->protocol == P_AUTO)
 		if((st = protocol_detect(metadata)) != ST_OK) {
 			free_metadata(metadata);

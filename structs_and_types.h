@@ -1,10 +1,11 @@
 typedef enum {FALSE, TRUE} bool_t;
 typedef enum {P_NMEA = 1, P_UBX = 2, P_AUTO = 3} protocol_t;
-typedef enum {ST_OK, ST_NULL_PTR, ST_INVALID_ARGUMENT, ST_NO_MEM, ST_ERR_OPEN_IN_FILE, ST_ERR_OPEN_OUT_FILE, ST_ERR_OPEN_LOG_FILE, ST_NO_PROTOCOL, ST_ERROR_EOF, ST_CORRUPT_FILE, ST_FULL_LIST} status_t;
+typedef enum {ST_OK, ST_NULL_PTR, ST_INVALID_ARGUMENT, ST_NO_MEM, ST_ERR_OPEN_IN_FILE, ST_ERR_OPEN_OUT_FILE, ST_ERR_OPEN_LOG_FILE, ST_NO_PROTOCOL, ST_ERROR_EOF, ST_CORRUPT_FILE, ST_FULL_LIST, ST_IGNORE_STATEMENT} status_t;
 typedef enum {FIX_INVALID, FIX_GPS, FIX_DGPS, FIX_PPS, FIX_RTK, FIX_FLOAT_RTK, FIX_ESTIMATED, FIX_MANUAL, FIX_SIMULATION} fix_quality_gga_t;
 typedef enum {FIX_NO, FIX_DEAD_RECKONING, FIX_2D, FIX_3D, FIX_COMBINED, FIX_TIME_ONLY} fix_pvt_t;
 typedef enum {A, V} rmc_status_t;
 typedef enum {PROCESS_ZERO, PROCESS_ONE, PROCESS_TWO, PROCESS_ALL} process_t;
+
 
 
 struct arg {
@@ -15,7 +16,7 @@ struct arg {
 	FILE * infile;
 	char * infile_name;
 	FILE * outfile;
-	FILE * loprotocolsgfile;
+	FILE * logfile;
 	bool_t infile_default;
 	bool_t outfile_default;
 	bool_t logfile_default;
@@ -60,7 +61,8 @@ typedef struct gga gga_s;
 
 
 struct rmc {
-	struct tm rmc_time;	
+	struct tm rmc_time;
+	int rmc_time_milisec;
 	rmc_status_t status;
 	double latitude; // el indicador (N o S) se expresa según la latitud sea pos o neg
 	double longitude;
@@ -117,3 +119,13 @@ struct nav_posllh {
 
 };
 typedef struct nav_posllh nav_posllh_s;
+
+struct data_structs {
+	gga_s * gga;
+	rmc_s * rmc;
+	zda_s * zda;
+	nav_pvt_s * nav_pvt;
+	tim_tos_s * tim_tos;
+	nav_posllh_s * nav_posllh;
+}:
+typedef struct data_structs data_structs_s;

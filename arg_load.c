@@ -330,16 +330,19 @@ void close_files(arg_s * metadata) {
 	if(! metadata)
 		return;
 
-	if(! metadata->infile_default)
-		fclose(metadata->infile);
-	else if(metadata->protocol == P_UBX)
+	if(! metadata->infile_default) {
+		if(metadata->infile)
+			fclose(metadata->infile);
+	} else if(metadata->protocol == P_UBX)
 		freopen(NULL, "rt", stdin);
 
 	if(! metadata->outfile_default)
-		fclose(metadata->outfile);
+		if(metadata->outfile)
+			fclose(metadata->outfile);
 
 	if(! metadata->logfile_default)
-		fclose(metadata->logfile);
+		if(metadata->logfile)
+			fclose(metadata->logfile);
 
 }
 
