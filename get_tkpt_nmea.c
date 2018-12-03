@@ -1,3 +1,9 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <string.h>
+#include <ctype.h>
+
 status_t get_tkpt_nmea(FILE * f, data_structs_s * structs, tkpt_s * tkpt) {
 	
 	int c, checksum;
