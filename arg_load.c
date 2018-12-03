@@ -67,7 +67,7 @@ status_t arg_load(int argc, const char ** argv, arg_s * metadata_io) {
 
 						st = arg_set_infile(metadata_io, argv[i]);
 
-						if((metadata_io->infile_name = (char *)malloc(strlen(argv[i]) * sizeof(char))) == NULL)
+						if((metadata_io->infile_name = (char *)malloc((strlen(argv[i]) + 1) * sizeof(char))) == NULL)
 							return ST_NO_MEM;
 
 						if(! strcpy(metadata_io->infile_name, argv[i]))
@@ -198,7 +198,7 @@ status_t arg_set_name(arg_s * metadata_io, const char * name) { // PIDE MEMORIA 
 	if(! metadata_io)
 		return ST_NULL_PTR;
 
-	metadata_io->name = (char *)malloc(strlen(name) * sizeof(char));
+	metadata_io->name = (char *)malloc((strlen(name) + 1) * sizeof(char));
 
 	if(metadata_io->name == NULL)
 		return ST_NO_MEM;

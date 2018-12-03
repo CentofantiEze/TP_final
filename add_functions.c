@@ -5,6 +5,9 @@ status_t protocol_detect(arg_s * metadata) {
 	if(!metadata)
 		return ST_NULL_PTR;
 
+	if(metadata->protocol == P_NMEA ||metadata->protocol == P_UBX)
+		return ST_OK;
+
 	if((metadata->infile = fopen(metadata->infile_name, "rb")) == NULL)
 		return ST_ERR_OPEN_IN_FILE;
 
@@ -44,36 +47,32 @@ status_t protocol_detect(arg_s * metadata) {
 }
 
 
-status_t data_structs_create(arg_s * metadata, data_structs_s * data_structs) {
+status_t data_structs_create(arg_s * metadata, data_structs_s ** data_structs) {
 
-	if(! metadata)
+	if(! metadata || ! data_structs)
 		return ST_NULL_PTR;
 	
-	if((data_structs = (data_structs_s *)calloc(1, sizeof(data_structs_s))) == NULL)
+	if((*data_structs = (data_structs_s *)calloc(1, sizeof(data_structs_s))) == NULL)
 		return ST_NO_MEM;
-puts("flag1");
+
 printf("%d\n", metadata->protocol);
 	if(metadata->protocol == 1) {
-puts("flag2");
-		if((data_structs->rmc = (rmc_s *)calloc(0, sizeof(rmc_s))) == NULL)
+
+		if(((*data_structs)->rmc = (rmc_s *)calloc(1, sizeof(rmc_s))) == NULL)
 			return ST_NO_MEM;
-puts("flag3");
-data_structs->zda = NULL;
-puts("flag4");
-		if((data_structs->gga = calloc(1, sizeof(gga_s))) == NULL) {
-puts("flag5");
-			free_data_structs(data_structs);
-puts("flag6");
+
+		if(((*data_structs)->gga = (gga_s *)calloc(1, sizeof(gga_s))) == NULL) {
+			free_data_structs(*data_structs);
 			return ST_NO_MEM;
 		}
 
-		if((data_structs->zda = (zda_s *)calloc(1, sizeof(zda_s))) == NULL) {
-			free_data_structs(data_structs);
+		if(((*data_structs)->zda = (zda_s *)calloc(1, sizeof(zda_s))) == NULL) {
+			free_data_structs(*data_structs);
 			return ST_NO_MEM;
 		}
 
-		if((data_structs->tkpt = (tkpt_s *)calloc(1, sizeof(tkpt_s))) == NULL) {
-			free_data_structs(data_structs);
+		if(((*data_structs)->tkpt = (tkpt_s *)calloc(1, sizeof(tkpt_s))) == NULL) {
+			free_data_structs(*data_structs);
 			return ST_NO_MEM;
 		}
 
@@ -81,21 +80,21 @@ puts("flag6");
 
 	} else if(metadata->protocol == P_UBX) {
 
-		if((data_structs->nav_pvt = (nav_pvt_s *)calloc(1, sizeof(nav_pvt_s))) == NULL)
+		if(((*data_structs)->nav_pvt = (nav_pvt_s *)calloc(1, sizeof(nav_pvt_s))) == NULL)
 			return ST_NO_MEM;
 
-		if((data_structs->tim_tos = (tim_tos_s *)calloc(1, sizeof(tim_tos_s))) == NULL) {
-			free_data_structs(data_structs);
-			return ST_NO_MEM;
-		}
-
-		if((data_structs->nav_posllh = (nav_posllh_s *)calloc(1, sizeof(nav_posllh_s))) == NULL) {
-			free_data_structs(data_structs);
+		if(((*data_structs)->tim_tos = (tim_tos_s *)calloc(1, sizeof(tim_tos_s))) == NULL) {
+			free_data_structs(*data_structs);
 			return ST_NO_MEM;
 		}
 
-		if((data_structs->tkpt = (tkpt_s *)calloc(1, sizeof(tkpt_s))) == NULL) {
-			free_data_structs(data_structs);
+		if(((*data_structs)->nav_posllh = (nav_posllh_s *)calloc(1, sizeof(nav_posllh_s))) == NULL) {
+			free_data_structs(*data_structs);
+			return ST_NO_MEM;
+		}
+
+		if(((*data_structs)->tkpt = (tkpt_s *)calloc(1, sizeof(tkpt_s))) == NULL) {
+			free_data_structs(*data_structs);
 			return ST_NO_MEM;
 		}
 
@@ -119,6 +118,7 @@ void free_data_structs(data_structs_s * data_structs) {
 	free(data_structs->tim_tos);
 	free(data_structs->nav_posllh);
 	free(data_structs->tkpt);
+	free(data_structs);
 
 }
 

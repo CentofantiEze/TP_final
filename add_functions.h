@@ -16,6 +16,6 @@
 
 
 status_t protocol_detect(arg_s * metadata);
-status_t data_structs_create(arg_s * metadata, data_structs_s * data_structs);
+status_t data_structs_create(arg_s * metadata, data_structs_s ** data_structs);
 void free_data_structs(data_structs_s * data_structs);
 status_t gpx_process(List *, process_t);

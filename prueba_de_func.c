@@ -57,7 +57,7 @@ int main(int argc, const char ** argv) {
 
  // ultimo ok
 
-	if((st = list_create(list)) != ST_OK) {
+	if((st = list_create(&list)) != ST_OK) {
 		close_files(metadata);
 		free_metadata(metadata);
 		printf("%d\n",st);
@@ -68,7 +68,7 @@ int main(int argc, const char ** argv) {
 
 	printf("%d\n", metadata->protocol);
 
-	if((st = data_structs_create(metadata, data_structs)) != ST_OK) {
+	if((st = data_structs_create(metadata, &data_structs)) != ST_OK) {
 		close_files(metadata);
 		free_metadata(metadata);
 		list_delete(list);
@@ -76,13 +76,24 @@ int main(int argc, const char ** argv) {
 	}
 
 	data_structs->gga->latitude = 24;
+
 	printf("%f\n", data_structs->rmc->latitude);
+
 	printf("%f\n", data_structs->rmc->longitude);
 
-	list->len = 24;
+	for(size_t i = 0; i < 10; i++) {
+		data_structs->tkpt->latitude = 3 * i;
+		st = list_append_tkpt(list, data_structs->tkpt, metadata->maxlen);
+		printf("nodo %lu %d\n",i,st);
+	}
+
+	printf("%lu\n", list->len);
+
+
 
 	close_files(metadata);
 	free_metadata(metadata);
+	free_data_structs(data_structs);
 	list_delete(list);
 	return 0;
 }

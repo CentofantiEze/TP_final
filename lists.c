@@ -1,6 +1,9 @@
-status_t list_create(List * l) {
+status_t list_create(List ** l) {
 
-	if((l = (List *)calloc(1, sizeof(List))) == NULL)
+	if(! l)
+		return ST_NULL_PTR;
+
+	if((*l = (List *)calloc(1, sizeof(List))) == NULL)
 		return ST_NO_MEM;
 
 	return ST_OK;
@@ -75,7 +78,7 @@ status_t list_append_tkpt(List * l, void * data, size_t maxlen) {
 
 List * list_delete(List * list) {
 
-	Node * aux1, * aux2;
+	Node * aux1 = NULL, * aux2 = NULL;
 
 	if(! list)
 		return NULL;
@@ -93,7 +96,13 @@ List * list_delete(List * list) {
 	}
 
 	free(aux1->data);
-	free(aux2->next);
+	free(aux1);
+
+	if(! aux2) {
+		free(list);
+		return NULL;
+	}
+
 	aux2->next = NULL;
 
 	return list_delete(list);
