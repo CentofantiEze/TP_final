@@ -1,8 +1,5 @@
 status_t list_create(List * l) {
 
-	if(! l)
-		return ST_NULL_PTR;
-
 	if((l = (List *)calloc(1, sizeof(List))) == NULL)
 		return ST_NO_MEM;
 
