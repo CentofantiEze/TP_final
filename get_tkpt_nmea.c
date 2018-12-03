@@ -4,8 +4,8 @@
 #include <string.h>
 #include <ctype.h>
 
-status_t get_tkpt_nmea(FILE * f, data_structs_s * structs, tkpt_s * tkpt) {
-	
+status_t get_tkpt_nmea(FILE * f, data_structs_s * structs) {
+	tkpt_s * tkpt = structs->tkpt;
 	int c, checksum;
 	size_t i;
 	char aux[MAX_SUBSTR_NMEA];
