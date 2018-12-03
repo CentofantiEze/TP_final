@@ -9,15 +9,16 @@ status_t get_tkpt_nmea(FILE * f, data_structs_s * structs, tkpt_s * tkpt) {
 	int c, checksum;
 	size_t i;
 	char aux[MAX_SUBSTR_NMEA];
-	bool_t tkpt_flag = FALSE, time_flag = FALSE;
-    
+	bool_t tkpt_flag = FALSE;
+	
 	if(!f || !structs) 
 		return ST_NULL_PTR;
 	/* LC. Primero busco el signo pesos */
-   
+	
 	while(tkpt_flag == FALSE) {
-	    
-	    while((c = fgetc(f)) != CHAR_INIT_NMEA && c != EOF);
+		
+		while((c = fgetc(f)) != CHAR_INIT_NMEA && c != EOF) {
+		}
 		checksum = 0;
 		/* Empieza checksum */
 		/* LC. Busco los dígitos "GP". Sino están tiro warning */
@@ -145,7 +146,6 @@ status_t gga_time_of_fix(char * s, data_structs_s * structs) {
 	
 	char aux[MAX_SUBSTR_NMEA], *end_ptr;
 	int hours, minutes, seconds, miliseconds, read_digits;
-	size_t i;
 
 	if(!s || !structs) {
 		return ST_NULL_PTR;
@@ -205,7 +205,7 @@ status_t latitude(char * str1, char * str2, data_structs_s * structs, void * nme
 	char aux[MAX_SUBSTR_NMEA];
 	double lat;
 	char *end_ptr;
-	size_t degrees, i;
+	size_t degrees;
 	int south_flag = 1, read_digits;
 	float minutes;
 
@@ -468,7 +468,6 @@ status_t zda_time_of_fix(char * str1, char * str2, char * str3, char * str4, dat
 	
 	char aux[MAX_SUBSTR_NMEA], *end_ptr;
 	int hours, minutes, seconds, miliseconds, year, month, day, read_digits;
-	size_t i;
 
 	if(!str1 || !str2 || !str3 || !str4 || !structs) {
 		return ST_NULL_PTR;
@@ -592,7 +591,6 @@ status_t rmc_time_of_fix(char * s, data_structs_s * structs) {
 	
 	char aux[MAX_SUBSTR_NMEA], *end_ptr;
 	int hours, minutes, seconds, miliseconds, read_digits;
-	size_t i;
 
 	if(!s || !structs) {
 		return ST_NULL_PTR;
@@ -655,10 +653,11 @@ status_t rmc_status(char * s, data_structs_s * structs) {
 		structs->rmc->status = RMC_STATUS_A;
 	else if(s[0] == RMC_CHAR_V)
 		structs->rmc->status = RMC_STATUS_V;
-	else
-		/* Tirar error */
+	else{}
+		
 
 	return ST_OK;
+	
 }
 
 status_t rmc_speed(char * s, data_structs_s * structs) {
@@ -724,7 +723,7 @@ status_t rmc_latitude(char * str1, char * str2, data_structs_s * structs, void *
 	char aux[MAX_SUBSTR_NMEA];
 	double lat;
 	char *end_ptr;
-	size_t degrees, i;
+	size_t degrees;
 	int south_flag = 1, read_digits;
 	float minutes;
 

@@ -17,6 +17,9 @@
 #include "lists.h"
 #include "lists.c"
 
+#include "get_tkpt_nmea.h"
+#include "get_tkpt_nmea.c"
+
 int main(int argc, const char ** argv) {
 
 	arg_s * metadata = NULL;
@@ -82,12 +85,15 @@ int main(int argc, const char ** argv) {
 	printf("%f\n", data_structs->rmc->longitude);
 
 	for(size_t i = 0; i < 10; i++) {
-		data_structs->tkpt->latitude = 3 * i;
+
+
+
 		st = list_append_tkpt(list, data_structs->tkpt, metadata->maxlen);
 		printf("nodo %lu %d\n",i,st);
 	}
 
 	printf("%lu\n", list->len);
+
 
 
 
