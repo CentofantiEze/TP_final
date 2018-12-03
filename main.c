@@ -1,5 +1,4 @@
 
-
 #define MAX_PROCESS_T 3
 
 
@@ -30,12 +29,38 @@ int main(int argc, const char argv **) {
 		return 0; /* EXIT_FAILURE/SUCCESS LIBERAR MEMORIA Y CERRAR ARCHIVOS */
 	}
 
+
+	if(metadata->protocol == P_AUTO)
+		if((st = protocol_detect(metadata)) != ST_OK) {
+			free_metadata(metadata);
+			close_files(metadata);
+			return 0;
+		}
+
+	
+
+	if(list_create(list) != ST_OK) {
+		free_metadata(metadata);
+		close_files(metadata);
+		return ST_NO_MEM;
+	}
+
+	if((st = data_structs_create(metadata, data_structs)) != ST_OK) {
+		free_metadata(metadata);
+		close_files(metadata);
+		list_delete(list);
+		return st;
+	}
+
+/***************************************************************************/
+
 	status_t protocol_detect(metadata_t *); // ####
 
 	if(list_create(list) != ST_OK)
 		return ST_NO_MEM; /* LIBERAR MEMORIA Y CERRAR ARCHIVOS */
 
 	while(! (tkpt = get_trackpoint(metadata))) {
+
 
 		if(list_append(list, tkpt, metadata->maxlen) != ST_OK) // ####
 			return ERROR; /* LIBERAR MEMORIA Y CERRAR ARCHIVOS */
