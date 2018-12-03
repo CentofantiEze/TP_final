@@ -420,9 +420,9 @@ status_t gga2tkpt(tkpt_s * tkpt, gga_s * gga) {
 		return ST_NULL_PTR;
 
 
-	//tkpt->tkpt_time->tm_hour = gga->gga_time.tm_hour; // ???
-	//tkpt->tkpt_time->tm_min = gga->gga_time.tm_min;
-	//tkpt->tkpt_time->tm_sec = gga->gga_time.tm_sec;
+	tkpt->tkpt_time.tm_hour = gga->gga_time.tm_hour; // ???
+	tkpt->tkpt_time.tm_min = gga->gga_time.tm_min;
+	tkpt->tkpt_time.tm_sec = gga->gga_time.tm_sec;
 	tkpt->tkpt_msec = gga->gga_time_milisec;
 	tkpt->latitude = gga->latitude;
 	tkpt->longitude = gga->longitude;
@@ -438,12 +438,12 @@ status_t zda2tkpt(tkpt_s * tkpt, zda_s * zda) {
 		return ST_NULL_PTR;
 
 
-	//tkpt->tkpt_time->tm_hour = zda->zda_time.tm_hour; // ???
-	//tkpt->tkpt_time->tm_min = zda->zda_time.tm_min;
-	//tkpt->tkpt_time->tm_sec = zda->zda_time.tm_sec;
-	//tkpt->tkpt_time->tm_year = zda->zda_time.tm_year;
-	//tkpt->tkpt_time->tm_mon = zda->zda_time.tm_mon;
-	//tkpt->tkpt_time->tm_year = zda->zda_time.tm_year;
+	tkpt->tkpt_time.tm_hour = zda->zda_time.tm_hour; // ???
+	tkpt->tkpt_time.tm_min = zda->zda_time.tm_min;
+	tkpt->tkpt_time.tm_sec = zda->zda_time.tm_sec;
+	tkpt->tkpt_time.tm_year = zda->zda_time.tm_year;
+	tkpt->tkpt_time.tm_mon = zda->zda_time.tm_mon;
+	tkpt->tkpt_time.tm_year = zda->zda_time.tm_year;
 	tkpt->tkpt_msec = zda->zda_time_milisec;
 
 	return ST_OK;
@@ -799,8 +799,7 @@ status_t rmc_longitude(char * str1, char * str2, data_structs_s * structs, void 
 
 	
 	lon = west_flag * (degrees + minutes / CONVERSION_FACTOR_MINUTES);
-	structs->rmc->longitude = lon; // esto está bien??
-
+	structs->rmc->longitude = lon; 
 	return ST_OK;
 }
 
