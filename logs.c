@@ -1,4 +1,4 @@
-#define MAX_STR 20
+#define MAX_STR 30
 #define MSG_ST_OK "Working fine"
 #define MSG_ST_NULL_PTR "Null pointer"
 #define MSG_ST_INVALID_ARGUMENT "Invalid argument"
