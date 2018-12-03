@@ -55,7 +55,6 @@ status_t data_structs_create(arg_s * metadata, data_structs_s ** data_structs) {
 	if((*data_structs = (data_structs_s *)calloc(1, sizeof(data_structs_s))) == NULL)
 		return ST_NO_MEM;
 
-printf("%d\n", metadata->protocol);
 	if(metadata->protocol == 1) {
 
 		if(((*data_structs)->rmc = (rmc_s *)calloc(1, sizeof(rmc_s))) == NULL)

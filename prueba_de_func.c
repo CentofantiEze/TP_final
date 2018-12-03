@@ -84,12 +84,20 @@ int main(int argc, const char ** argv) {
 
 	printf("%f\n", data_structs->rmc->longitude);
 
-	for(size_t i = 0; i < 10; i++) {
-
-
-
-		st = list_append_tkpt(list, data_structs->tkpt, metadata->maxlen);
-		printf("nodo %lu %d\n",i,st);
+	for(int i = 0; i < 10; i++) {
+		st = get_tkpt_nmea(metadata, data_structs);
+		if(st != ST_OK) {
+			puts("Descartado");
+			printf("%d\n", st);
+			i--;
+		} else {
+			st = list_append_tkpt(list, data_structs->tkpt, metadata->maxlen);
+			if(st != ST_OK) {
+				printf("%d\n", st);
+				return st;
+			}
+			printf("nodo %d %d\n",i,st);
+		}
 	}
 
 	printf("%lu\n", list->len);

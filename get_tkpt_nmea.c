@@ -4,16 +4,20 @@
 #include <string.h>
 #include <ctype.h>
 
-status_t get_tkpt_nmea(FILE * f, data_structs_s * structs) {
+status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs) {
+
+	FILE * f;
 	tkpt_s * tkpt = structs->tkpt;
 	int c, checksum;
 	size_t i;
 	char aux[MAX_SUBSTR_NMEA];
 	bool_t tkpt_flag = FALSE;
 	
-	if(!f || !structs) 
+	if(!metadata || !structs) 
 		return ST_NULL_PTR;
 	/* LC. Primero busco el signo pesos */
+
+	f = metadata->infile;
 	
 	while(tkpt_flag == FALSE) {
 		
@@ -144,7 +148,7 @@ status_t get_nmea_data(unsigned int qfields, char string[][MAX_SUBSTR_NMEA], FIL
 
 status_t gga_time_of_fix(char * s, data_structs_s * structs) {
 	
-	char aux[MAX_SUBSTR_NMEA], *end_ptr;
+	char aux[MAX_SUBSTR_NMEA], *end_ptr = NULL;
 	int hours, minutes, seconds, miliseconds, read_digits;
 
 	if(!s || !structs) {
@@ -153,7 +157,7 @@ status_t gga_time_of_fix(char * s, data_structs_s * structs) {
 
 	strncpy(aux, s, HOURS_DIGITS); // validar
 	read_digits = HOURS_DIGITS;
-	aux[read_digits] = '\0';
+	aux[HOURS_DIGITS] = '\0';
 
 	hours = strtoul(aux, &end_ptr, 10);
 	if(*end_ptr != '\0') {
@@ -162,7 +166,7 @@ status_t gga_time_of_fix(char * s, data_structs_s * structs) {
 
 	strncpy(aux, s + read_digits, MINUTES_DIGITS); // validar
 	read_digits += MINUTES_DIGITS;
-	aux[read_digits] = '\0';
+	aux[MINUTES_DIGITS] = '\0';
 
 	minutes = strtoul(aux, &end_ptr, 10);
 	if(*end_ptr != '\0') {
@@ -171,7 +175,7 @@ status_t gga_time_of_fix(char * s, data_structs_s * structs) {
 
 	strncpy(aux, s + read_digits, SECONDS_DIGITS); // validar
 	read_digits += SECONDS_DIGITS;
-	aux[read_digits] = '\0';
+	aux[SECONDS_DIGITS] = '\0';
 
 	seconds = strtof(aux, &end_ptr);
 	if(*end_ptr != '\0') {
@@ -180,13 +184,13 @@ status_t gga_time_of_fix(char * s, data_structs_s * structs) {
 	
 	strncpy(aux, s + read_digits + 1, MILISECONDS_DIGITS); // validar, sumo uno por el punto
 	read_digits += MILISECONDS_DIGITS + 1;
-	aux[read_digits] = '\0';
+	aux[MILISECONDS_DIGITS] = '\0';
 
 	miliseconds = strtoul(aux, &end_ptr, 10);
 	if(*end_ptr != '\0') {
 		return ST_NUMERICAL_ERROR;
 	}
-
+printf("%u", seconds);
 	(structs->gga->gga_time).tm_hour = hours;
 	(structs->gga->gga_time).tm_min = minutes;   
 	(structs->gga->gga_time).tm_sec = seconds;
@@ -204,7 +208,7 @@ status_t latitude(char * str1, char * str2, data_structs_s * structs, void * nme
 
 	char aux[MAX_SUBSTR_NMEA];
 	double lat;
-	char *end_ptr;
+	char *end_ptr = NULL;
 	size_t degrees;
 	int south_flag = 1, read_digits;
 	float minutes;
@@ -216,7 +220,7 @@ status_t latitude(char * str1, char * str2, data_structs_s * structs, void * nme
 	/*[20] Lee los grados y minutos, los convierte a numeros y realiza el pasaje a grados.*/
 	strncpy(aux, str1, NMEA_LATITUDE_DEGREES); // validar
 	read_digits = NMEA_LATITUDE_DEGREES;
-	aux[read_digits] = '\0';
+	aux[NMEA_LATITUDE_DEGREES] = '\0';
 
 	degrees = strtoul(aux, &end_ptr, 10);
 	if(*end_ptr != '\0') {
@@ -225,9 +229,9 @@ status_t latitude(char * str1, char * str2, data_structs_s * structs, void * nme
 	
 	strncpy(aux, str1 + read_digits, NMEA_LATITUDE_MINUTES); // validar
 	read_digits += NMEA_LATITUDE_MINUTES;
-	aux[read_digits] = '\0';
+	aux[NMEA_LATITUDE_MINUTES] = '\0';
 
-	minutes = strtof(aux, &end_ptr);
+	minutes = strtod(aux, &end_ptr);
 	if(*end_ptr != '\0') {
 		return ST_NUMERICAL_ERROR;
 	}
@@ -259,7 +263,7 @@ status_t longitude(char * str1, char * str2, data_structs_s * structs, void * nm
 
 	strncpy(aux, str1, NMEA_LONGITUDE_DEGREES); // validar
 	read_digits = NMEA_LONGITUDE_DEGREES;
-	aux[read_digits] = '\0';
+	aux[NMEA_LONGITUDE_DEGREES] = '\0';
 
 	degrees = strtoul(aux, &end_ptr, 10);
 	if(*end_ptr != '\0') {
@@ -268,7 +272,7 @@ status_t longitude(char * str1, char * str2, data_structs_s * structs, void * nm
 
 	strncpy(aux, str1 + read_digits, NMEA_LONGITUDE_MINUTES); // validar
 	read_digits += NMEA_LONGITUDE_MINUTES;
-	aux[read_digits] = '\0';
+	aux[NMEA_LONGITUDE_MINUTES] = '\0';
 
 	minutes = strtof(aux, &end_ptr);
 	if(*end_ptr != '\0') {
@@ -598,7 +602,7 @@ status_t rmc_time_of_fix(char * s, data_structs_s * structs) {
 
 	strncpy(aux, s, HOURS_DIGITS); // validar
 	read_digits = HOURS_DIGITS;
-	aux[read_digits] = '\0';
+	aux[HOURS_DIGITS] = '\0';
 
 	hours = strtoul(aux, &end_ptr, 10);
 	if(*end_ptr != '\0') {
@@ -607,7 +611,7 @@ status_t rmc_time_of_fix(char * s, data_structs_s * structs) {
 
 	strncpy(aux, s + read_digits, MINUTES_DIGITS); // validar
 	read_digits += MINUTES_DIGITS;
-	aux[read_digits] = '\0';
+	aux[MINUTES_DIGITS] = '\0';
 
 	minutes = strtoul(aux, &end_ptr, 10);
 	if(*end_ptr != '\0') {
@@ -616,7 +620,7 @@ status_t rmc_time_of_fix(char * s, data_structs_s * structs) {
 
 	strncpy(aux, s + read_digits, SECONDS_DIGITS); // validar
 	read_digits += SECONDS_DIGITS;
-	aux[read_digits] = '\0';
+	aux[SECONDS_DIGITS] = '\0';
 
 	seconds = strtof(aux, &end_ptr);
 	if(*end_ptr != '\0') {
@@ -625,7 +629,7 @@ status_t rmc_time_of_fix(char * s, data_structs_s * structs) {
 	
 	strncpy(aux, s + read_digits + 1, MILISECONDS_DIGITS); // validar, sumo uno por el punto
 	read_digits += MILISECONDS_DIGITS + 1;
-	aux[read_digits] = '\0';
+	aux[MILISECONDS_DIGITS] = '\0';
 
 	miliseconds = strtoul(aux, &end_ptr, 10);
 	if(*end_ptr != '\0') {
@@ -777,7 +781,7 @@ status_t rmc_longitude(char * str1, char * str2, data_structs_s * structs, void 
 
 	strncpy(aux, str1, NMEA_LONGITUDE_DEGREES); // validar
 	read_digits = NMEA_LONGITUDE_DEGREES;
-	aux[read_digits] = '\0';
+	aux[NMEA_LONGITUDE_DEGREES] = '\0';
 
 	degrees = strtoul(aux, &end_ptr, 10);
 	if(*end_ptr != '\0') {
@@ -786,7 +790,7 @@ status_t rmc_longitude(char * str1, char * str2, data_structs_s * structs, void 
 
 	strncpy(aux, str1 + read_digits, NMEA_LONGITUDE_MINUTES); // validar
 	read_digits += NMEA_LONGITUDE_MINUTES;
-	aux[read_digits] = '\0';
+	aux[NMEA_LONGITUDE_MINUTES] = '\0';
 
 	minutes = strtof(aux, &end_ptr);
 	if(*end_ptr != '\0') {

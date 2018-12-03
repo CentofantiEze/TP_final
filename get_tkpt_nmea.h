@@ -100,7 +100,7 @@ status_t gga2tkpt(tkpt_s *, gga_s *);
 status_t zda2tkpt(tkpt_s *, zda_s *);
 status_t rmc2tkpt(tkpt_s *, rmc_s *);
 
-status_t get_tkpt_nmea(FILE * f, data_structs_s *, tkpt_s *);
+status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs);
 status_t hexstring_2_integer(int, int, int *);
 status_t get_nmea_data(unsigned int, char s[][MAX_SUBSTR_NMEA], FILE *, int *); 
 status_t gga_time_of_fix(char *, data_structs_s *);
