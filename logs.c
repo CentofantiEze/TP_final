@@ -30,6 +30,7 @@ void log_print(FILE * f, status_t st) {
 -Actualizar hora
 -Trackpoint generado
 -Impresión GPX exitosa
+-Programa finalizó bien
 -No se recibió GP NMEA [warn]
 -Fix inválido NMEA
 -Sentencia mal formada
