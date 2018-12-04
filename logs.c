@@ -1,41 +1,32 @@
 #define MAX_STR 30
-#define MSG_ST_OK "Working fine"
-#define MSG_ST_NULL_PTR "Null pointer"
-#define MSG_ST_INVALID_ARGUMENT "Invalid argument"
-#define MSG_ST_NO_MEM "No memory available"
-#define MSG_ST_ERR_OPEN_IN_FILE "Could not open file input"
-#define MSG_ST_ERR_OPEN_OUT_FILE "Could not open file output"
-#define MSG_ST_ERR_OPEN_LOG_FILE "Could not open log file"
-#define MSG_ST_NO_PROTOCOL "No protocol"
-#define MSG_ST_ERROR_EOF "End of File"
-#define MSG_ST_CORRUPT_FILE "File has been corrupted"
-#define MSG_ST_FULL_LIST "Full list"
-#define MSG_ST_IGNORE_STATEMENT "One statement has been ignored"
-#define MSG_ST_NUMERICAL_ERROR "Invalid number"
+#define MSG_TIME_UPDATED "The current time has been updated" 
+#define MSG_DATE_UPDATED "The current date has been updated" 
+#define MSG_TKPT_GEN "Trackpoint generated successfully"
+#define MSG_TKPT_PRINT "Trackpoint printed successfully" 
+#define MSG_NMEA_GP "Warning: No GPS found" 
+#define MSG_NMEA_FIX "Warning: invalid fix"
+#define MSG_UBX_ID "Warning: invalid ID"
+#define MSG_UBX_LONG "Error: invalid payload length" 
+#define MSG_UBX_TIME "Error: invalid time" 
+#define MSG_UBX_DATE "Error: invalid date" 
+#define MSG_INCORRECT_STATEMENT "Error: Statement has unexpected format" 
+#define MSG_INTERNAL_ERROR "Error: internal error"
+#define MSG_CHECKSUM "Error: wrong checksum" 
+#define MSG_IGNORED_STATEMENT "Ignored statement" 
+#define MSG_SUCCESSFUL_EXIT "The program has ended successfully"
+#define MSG_READ_FILE "Fatal error: could not read file"
+#define MSG_OPEN_FILE "Fatal error: could not open file"
+
+typedef enum {TIME_UPDATED, DATE_UPDATED, TKPT_GEN, TKPT_PRINT, NMEA_GP, NMEA_FIX, UBX_ID, UBX_LONG, UBX_TIME, UBX_DATE, INCORRECT_STATEMENT, INTERNAL_ERROR, CHECKSUM, IGNORED_STATEMENT, SUCCESSFUL_EXIT, READ_FILE, OPEN_FILE} log_t;
+
+const char log_dictionary[][MAX_STR] = {MSG_TIME_UPDATED, MSG_DATE_UPDATED, MSG_TKPT_GEN, MSG_TKPT_PRINT, MSG_NMEA_GP, MSG_NMEA_FIX, MSG_UBX_ID, MSG_UBX_LONG, MSG_UBX_TIME, MSG_UBX_DATE, MSG_INCORRECT_STATEMENT, MSG_INTERNAL_ERROR, MSG_CHECKSUM, MSG_IGNORED_STATEMENT, MSG_SUCCESSFUL_EXIT, MSG_READ_FILE, MSG_OPEN_FILE};
 
 
-typedef enum {ST_OK, ST_NULL_PTR, ST_INVALID_ARGUMENT, ST_NO_MEM, ST_ERR_OPEN_IN_FILE, ST_ERR_OPEN_OUT_FILE, ST_ERR_OPEN_LOG_FILE, ST_NO_PROTOCOL, ST_ERROR_EOF, ST_CORRUPT_FILE, ST_FULL_LIST, ST_IGNORE_STATEMENT, ST_NUMERICAL_ERROR} status_t;
+void log_print(FILE *, log_t);
 
-const char status_dictionary[][MAX_STR] = {MSG_ST_OK, MSG_ST_NULL_PTR, MSG_ST_INVALID_ARGUMENT, MSG_ST_NO_MEM, MSG_ST_ERR_OPEN_IN_FILE, MSG_ST_ERR_OPEN_OUT_FILE, MSG_ST_ERR_OPEN_LOG_FILE, MSG_ST_NO_PROTOCOL, MSG_ST_ERROR_EOF, MSG_ST_CORRUPT_FILE, MSG_ST_FULL_LIST, MSG_ST_IGNORE_STATEMENT, MSG_ST_NUMERICAL_ERROR};
+void log_print(FILE * f, log_t current_log) {
 
-void log_print(FILE *, status_t);
+	fprintf(f, "%s\n", log_dictionary[current_log]);
 
-void log_print(FILE * f, status_t st) {
-
-	fprintf(f, "%s\n", status_dictionary[st]);
+	if(current_log >= UBX_LONG && CHECKSUM >= current_log)
 }
-
-
-/* SE DEBE INFORMAR
--Actualizar hora
--Trackpoint generado
--Impresión GPX exitosa
--Programa finalizó bien
--No se recibió GP NMEA [warn]
--Fix inválido NMEA
--Sentencia mal formada
--No se recibió ID válido UBX [warn]
--No se pudo abrir archivo
--Checksum
--Largos incorrectos
--Sentencias descartadas */
