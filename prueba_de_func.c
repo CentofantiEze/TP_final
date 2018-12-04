@@ -102,7 +102,7 @@ int main(int argc, const char ** argv) {
 
 	printf("%lu\n", list->len);
 
-
+	printf("%d\n",((tkpt_s *)(list->first_node->data))->tkpt_msec);
 
 
 	close_files(metadata);

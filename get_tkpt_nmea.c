@@ -190,7 +190,7 @@ status_t gga_time_of_fix(char * s, data_structs_s * structs) {
 	if(*end_ptr != '\0') {
 		return ST_NUMERICAL_ERROR;
 	}
-printf("%u", seconds);
+
 	(structs->gga->gga_time).tm_hour = hours;
 	(structs->gga->gga_time).tm_min = minutes;   
 	(structs->gga->gga_time).tm_sec = seconds;

@@ -53,7 +53,7 @@ status_t list_append_tkpt(List * l, void * data, size_t maxlen) {
 		return ST_NULL_PTR;
 
 	if(l->len == maxlen)
-		return ST_FULL_LIST;
+		return ST_LIST_FULL;
 
 	if((st = node_create(&new_node, data, &clone_tkpt)) != ST_OK)
 		return st;
@@ -106,5 +106,25 @@ List * list_delete(List * list) {
 	aux2->next = NULL;
 
 	return list_delete(list);
+
+}
+
+status_t popleft(List * list, tkpt_s ** tkpt) {
+
+	if(! list || ! tkpt)
+		return ST_NULL_PTR;
+
+	if(list->len == 0)
+		return ST_LIST_EMPTY;
+
+	*tkpt = list->first_node->data;
+
+	free(list->first_node);
+
+	list->first_node = list->first_node->next;
+	
+	list->len--;
+
+	return ST_OK;
 
 }
