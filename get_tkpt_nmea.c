@@ -424,7 +424,7 @@ status_t gga2tkpt(tkpt_s * tkpt, gga_s * gga) {
 		return ST_NULL_PTR;
 
 
-	tkpt->tkpt_time.tm_hour = gga->gga_time.tm_hour; // ???
+	tkpt->tkpt_time.tm_hour = gga->gga_time.tm_hour; 
 	tkpt->tkpt_time.tm_min = gga->gga_time.tm_min;
 	tkpt->tkpt_time.tm_sec = gga->gga_time.tm_sec;
 	tkpt->tkpt_msec = gga->gga_time_milisec;
@@ -442,10 +442,10 @@ status_t zda2tkpt(tkpt_s * tkpt, zda_s * zda) {
 		return ST_NULL_PTR;
 
 
-	tkpt->tkpt_time.tm_hour = zda->zda_time.tm_hour; // ???
+	tkpt->tkpt_time.tm_hour = zda->zda_time.tm_hour; 
 	tkpt->tkpt_time.tm_min = zda->zda_time.tm_min;
 	tkpt->tkpt_time.tm_sec = zda->zda_time.tm_sec;
-	tkpt->tkpt_time.tm_year = zda->zda_time.tm_year;
+	tkpt->tkpt_time.tm_mday = zda->zda_time.tm_mday;
 	tkpt->tkpt_time.tm_mon = zda->zda_time.tm_mon;
 	tkpt->tkpt_time.tm_year = zda->zda_time.tm_year;
 	tkpt->tkpt_msec = zda->zda_time_milisec;
@@ -459,6 +459,13 @@ status_t rmc2tkpt(tkpt_s * tkpt, rmc_s * rmc) {
 	if(!tkpt || !rmc)
 		return ST_NULL_PTR;
 
+	tkpt->tkpt_time.tm_hour = rmc->rmc_time.tm_hour; 
+	tkpt->tkpt_time.tm_min = rmc->rmc_time.tm_min;
+	tkpt->tkpt_time.tm_sec = rmc->rmc_time.tm_sec;
+	tkpt->tkpt_time.tm_mday = rmc->rmc_time.tm_mday;
+	tkpt->tkpt_time.tm_mon = rmc->rmc_time.tm_mon;
+	tkpt->tkpt_time.tm_year = rmc->rmc_time.tm_year;
+	tkpt->tkpt_msec = rmc->rmc_time_milisec;
 	tkpt->latitude = rmc->latitude;
 	tkpt->longitude = rmc->longitude;
 	tkpt->elevation = 0;		
@@ -591,58 +598,86 @@ status_t read_nmea_zda(FILE * f, data_structs_s * structs, int checksum) {
 
 }
 
-status_t rmc_time_of_fix(char * s, data_structs_s * structs) {
+status_t rmc_time_of_fix(char * str1, char * str2, data_structs_s * structs) {
 	
 	char aux[MAX_SUBSTR_NMEA], *end_ptr;
-	int hours, minutes, seconds, miliseconds, read_digits;
+	int hours, minutes, seconds, miliseconds, year, month, day, read_digits;
 
-	if(!s || !structs) {
+	if(!str1 || !str2 || !structs) {
 		return ST_NULL_PTR;
 	}
 
-	strncpy(aux, s, HOURS_DIGITS); // validar
+	strncpy(aux, str1, HOURS_DIGITS); // validar
 	read_digits = HOURS_DIGITS;
-	aux[HOURS_DIGITS] = '\0';
+	aux[read_digits] = '\0';
 
 	hours = strtoul(aux, &end_ptr, 10);
 	if(*end_ptr != '\0') {
 		return ST_NUMERICAL_ERROR;	
 	}
 
-	strncpy(aux, s + read_digits, MINUTES_DIGITS); // validar
+	strncpy(aux, str1 + read_digits, MINUTES_DIGITS); // validar
 	read_digits += MINUTES_DIGITS;
-	aux[MINUTES_DIGITS] = '\0';
+	aux[read_digits] = '\0';
 
 	minutes = strtoul(aux, &end_ptr, 10);
 	if(*end_ptr != '\0') {
 		return ST_NUMERICAL_ERROR;	
 	}
 
-	strncpy(aux, s + read_digits, SECONDS_DIGITS); // validar
+	strncpy(aux, str1 + read_digits, SECONDS_DIGITS); // validar
 	read_digits += SECONDS_DIGITS;
-	aux[SECONDS_DIGITS] = '\0';
+	aux[read_digits] = '\0';
 
 	seconds = strtof(aux, &end_ptr);
 	if(*end_ptr != '\0') {
 		return ST_NUMERICAL_ERROR;
 	}
 	
-	strncpy(aux, s + read_digits + 1, MILISECONDS_DIGITS); // validar, sumo uno por el punto
+	strncpy(aux, str1 + read_digits + 1, MILISECONDS_DIGITS); // validar, sumo uno por el punto
 	read_digits += MILISECONDS_DIGITS + 1;
-	aux[MILISECONDS_DIGITS] = '\0';
+	aux[read_digits] = '\0';
 
 	miliseconds = strtoul(aux, &end_ptr, 10);
 	if(*end_ptr != '\0') {
 		return ST_NUMERICAL_ERROR;
 	}
 
+	strncpy(aux, str2, DAY_DIGITS); // validar
+	read_digits = DAY_DIGITS;
+	aux[read_digits] = '\0';
+
+	day = strtoul(aux, &end_ptr, 10);
+	if(*end_ptr != '\0') {
+		return ST_NUMERICAL_ERROR;	
+	}
+
+	strncpy(aux, str2 + read_digits, MONTH_DIGITS); // validar
+	read_digits += MONTH_DIGITS;
+	aux[read_digits] = '\0';
+
+	month = strtoul(aux, &end_ptr, 10);
+	if(*end_ptr != '\0') {
+		return ST_NUMERICAL_ERROR;	
+	}
+
+	strncpy(aux, str2 + read_digits, YEAR_DIGITS); // validar
+	read_digits += YEAR_DIGITS;
+	aux[read_digits] = '\0';
+
+	year = strtof(aux, &end_ptr);
+	if(*end_ptr != '\0') {
+		return ST_NUMERICAL_ERROR;
+	}
+
+
 	(structs->rmc->rmc_time).tm_hour = hours;
 	(structs->rmc->rmc_time).tm_min = minutes;   
 	(structs->rmc->rmc_time).tm_sec = seconds;
 	structs->rmc->rmc_time_milisec = miliseconds;
-	//(zda->zda_time).tm_year = arg->time->tm_year; 
-	//(zda->zda_time).tm_mon = arg->time->tm_mon;
-	//(zda->zda_time).tm_mday = arg->time->tm_mday;
+	(structs->rmc->rmc_time).tm_year = year + OFFSET_YEAR; 
+	(structs->rmc->rmc_time).tm_mon = month;
+	(structs->rmc->rmc_time).tm_mday = day;	
 
 	return ST_OK;
 }
@@ -815,7 +850,7 @@ status_t read_nmea_rmc(FILE * f, data_structs_s * structs, int checksum) {
 		return ST_NULL_PTR;
 	
 	get_nmea_data(RMC_FIELDS, s, f, &checksum); // validar
-	rmc_time_of_fix(s[RMC_TIME_FIELD], structs);
+	rmc_time_of_fix(s[RMC_TIME_FIELD], s[RMC_DATE_FIELD], structs);
 	rmc_status(s[RMC_STATUS_FIELD], structs);
 	latitude(s[RMC_LAT_FIELD], s[RMC_LAT_N_S_FIELD], structs, structs->rmc);
 	longitude(s[RMC_LONG_FIELD], s[RMC_LONG_W_E_FIELD], structs, structs->rmc);
