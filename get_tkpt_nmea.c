@@ -609,7 +609,7 @@ status_t rmc_time_of_fix(char * str1, char * str2, data_structs_s * structs) {
 
 	strncpy(aux, str1, HOURS_DIGITS); // validar
 	read_digits = HOURS_DIGITS;
-	aux[read_digits] = '\0';
+	aux[HOURS_DIGITS] = '\0';
 
 	hours = strtoul(aux, &end_ptr, 10);
 	if(*end_ptr != '\0') {
@@ -618,7 +618,7 @@ status_t rmc_time_of_fix(char * str1, char * str2, data_structs_s * structs) {
 
 	strncpy(aux, str1 + read_digits, MINUTES_DIGITS); // validar
 	read_digits += MINUTES_DIGITS;
-	aux[read_digits] = '\0';
+	aux[MINUTES_DIGITS] = '\0';
 
 	minutes = strtoul(aux, &end_ptr, 10);
 	if(*end_ptr != '\0') {
@@ -627,7 +627,7 @@ status_t rmc_time_of_fix(char * str1, char * str2, data_structs_s * structs) {
 
 	strncpy(aux, str1 + read_digits, SECONDS_DIGITS); // validar
 	read_digits += SECONDS_DIGITS;
-	aux[read_digits] = '\0';
+	aux[SECONDS_DIGITS] = '\0';
 
 	seconds = strtof(aux, &end_ptr);
 	if(*end_ptr != '\0') {
@@ -636,7 +636,7 @@ status_t rmc_time_of_fix(char * str1, char * str2, data_structs_s * structs) {
 	
 	strncpy(aux, str1 + read_digits + 1, MILISECONDS_DIGITS); // validar, sumo uno por el punto
 	read_digits += MILISECONDS_DIGITS + 1;
-	aux[read_digits] = '\0';
+	aux[MILISECONDS_DIGITS] = '\0';
 
 	miliseconds = strtoul(aux, &end_ptr, 10);
 	if(*end_ptr != '\0') {
@@ -645,7 +645,7 @@ status_t rmc_time_of_fix(char * str1, char * str2, data_structs_s * structs) {
 
 	strncpy(aux, str2, DAY_DIGITS); // validar
 	read_digits = DAY_DIGITS;
-	aux[read_digits] = '\0';
+	aux[DAY_DIGITS] = '\0';
 
 	day = strtoul(aux, &end_ptr, 10);
 	if(*end_ptr != '\0') {
@@ -654,7 +654,7 @@ status_t rmc_time_of_fix(char * str1, char * str2, data_structs_s * structs) {
 
 	strncpy(aux, str2 + read_digits, MONTH_DIGITS); // validar
 	read_digits += MONTH_DIGITS;
-	aux[read_digits] = '\0';
+	aux[MONTH_DIGITS] = '\0';
 
 	month = strtoul(aux, &end_ptr, 10);
 	if(*end_ptr != '\0') {
@@ -663,7 +663,7 @@ status_t rmc_time_of_fix(char * str1, char * str2, data_structs_s * structs) {
 
 	strncpy(aux, str2 + read_digits, YEAR_DIGITS); // validar
 	read_digits += YEAR_DIGITS;
-	aux[read_digits] = '\0';
+	aux[YEAR_DIGITS] = '\0';
 
 	year = strtof(aux, &end_ptr);
 	if(*end_ptr != '\0') {

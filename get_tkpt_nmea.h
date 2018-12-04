@@ -56,7 +56,7 @@
 #define DAY_DIGITS 2
 #define MONTH_DIGITS 2
 #define YEAR_DIGITS 2
-#define YEAR_OFFSET 2000
+#define OFFSET_YEAR 2000
 
 /* macros de latitud y longitud */
 #define NMEA_LATITUDE_DEGREES 2
@@ -104,7 +104,7 @@ status_t gga2tkpt(tkpt_s *, gga_s *);
 status_t zda2tkpt(tkpt_s *, zda_s *);
 status_t rmc2tkpt(tkpt_s *, rmc_s *);
 
-status_t get_tkpt_nmea(FILE * f, data_structs_s *);
+status_t get_tkpt_nmea(arg_s * f, data_structs_s *);
 status_t hexstring_2_integer(int, int, int *);
 status_t get_nmea_data(unsigned int, char s[][MAX_SUBSTR_NMEA], FILE *, int *); 
 status_t gga_time_of_fix(char *, data_structs_s *);
