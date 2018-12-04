@@ -12,7 +12,8 @@ status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs) {
 	size_t i;
 	char aux[MAX_SUBSTR_NMEA];
 	bool_t tkpt_flag = FALSE;
-	
+	status_t st;
+
 	if(!metadata || !structs) 
 		return ST_NULL_PTR;
 	/* LC. Primero busco el signo pesos */
@@ -46,23 +47,26 @@ status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs) {
 		if(!(strcmp(aux, GGA_INDICATOR))) {
 			if(structs->zda->time_flag == TRUE) 
 			    tkpt_flag = TRUE;
-			read_nmea_gga(f, structs, checksum); 
+			if((st = read_nmea_gga(f, structs, checksum)) != ST_OK)
+				return st; 
 			gga2tkpt(tkpt, structs->gga); 
 	
-            puts("Entré a GGA");
+           		puts("Entré a GGA");
             
 		} else if(!(strcmp(aux, ZDA_INDICATOR))) {
 			structs->zda->time_flag = TRUE;
-			read_nmea_zda(f, structs, checksum); // Tiene adentro gga2tkpt, devuelve un puntero a tkpt
+			if((st = read_nmea_zda(f, structs, checksum)) != ST_OK)
+				return st; 
 			zda2tkpt(tkpt, structs->zda); 
-            puts("Entré a ZDA");
+           		 puts("Entré a ZDA");
 
 		} else if(!(strcmp(aux, RMC_INDICATOR))) {
-			if(structs->zda->time_flag == TRUE) 
-			    tkpt_flag = TRUE;
-			read_nmea_rmc(f, structs, checksum); // Incluye: si no hay dato temporal, po
+			structs->zda->time_flag == TRUE;
+			tkpt_flag = TRUE;
+			if((st = read_nmea_rmc(f, structs, checksum)) != ST_OK)
+				return st; 
 			rmc2tkpt(tkpt, structs->rmc); 
-		    puts("Entré a RMC");
+		    	puts("Entré a RMC");
 		    
 		} else
 		/* Tirar error porque no se encontró "GGA", "ZDA" o "RMC" */
