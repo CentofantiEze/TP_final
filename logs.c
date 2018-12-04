@@ -24,3 +24,17 @@ void log_print(FILE * f, status_t st) {
 
 	fprintf(f, "%s\n", status_dictionary[st]);
 }
+
+
+/* SE DEBE INFORMAR
+-Actualizar hora
+-Trackpoint generado
+-Impresión GPX exitosa
+-No se recibió GP NMEA [warn]
+-Fix inválido NMEA
+-Sentencia mal formada
+-No se recibió ID válido UBX [warn]
+-No se pudo abrir archivo
+-Checksum
+-Largos incorrectos
+-Sentencias descartadas */
