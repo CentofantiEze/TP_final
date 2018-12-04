@@ -1,4 +1,3 @@
-
 #define GGA_FIELDS 12
 #define ZDA_FIELDS 6
 #define RMC_FIELDS 10
@@ -29,6 +28,7 @@
 #define RMC_LONG_W_E_FIELD 3
 #define RMC_SPEED_FIELD 5
 #define RMC_ANGLE_FIELD 6
+#define RMC_DATE_FIELD 7
 #define RMC_MAGNETIC_FIELD 8
 
 #define CHAR_INIT_NMEA '$'
@@ -53,6 +53,10 @@
 #define SECONDS_DIGITS 2
 #define MILISECONDS_DIGITS 3
 #define MILISECONDS_DIGITS_ZDA 2
+#define DAY_DIGITS 2
+#define MONTH_DIGITS 2
+#define YEAR_DIGITS 2
+#define YEAR_OFFSET 2000
 
 /* macros de latitud y longitud */
 #define NMEA_LATITUDE_DEGREES 2
@@ -100,7 +104,7 @@ status_t gga2tkpt(tkpt_s *, gga_s *);
 status_t zda2tkpt(tkpt_s *, zda_s *);
 status_t rmc2tkpt(tkpt_s *, rmc_s *);
 
-status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs);
+status_t get_tkpt_nmea(FILE * f, data_structs_s *);
 status_t hexstring_2_integer(int, int, int *);
 status_t get_nmea_data(unsigned int, char s[][MAX_SUBSTR_NMEA], FILE *, int *); 
 status_t gga_time_of_fix(char *, data_structs_s *);
@@ -114,7 +118,7 @@ status_t gga_undulation_of_geoid(char *, data_structs_s *);
 status_t zda_time_of_fix(char *, char *, char *, char *, data_structs_s *);
 status_t zda_time_zone(char *, data_structs_s *);
 status_t zda_time_difference(char *, data_structs_s *);
-status_t rmc_time_of_fix(char *, data_structs_s *);
+status_t rmc_time_of_fix(char *, char *, data_structs_s *);
 status_t rmc_speed(char *, data_structs_s *);
 status_t rmc_angle(char *, data_structs_s *);
 status_t rmc_magnetic_deviation(char *, data_structs_s *);
