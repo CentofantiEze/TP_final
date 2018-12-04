@@ -51,14 +51,14 @@ status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs) {
 				return st; 
 			gga2tkpt(tkpt, structs->gga); 
 	
-           		puts("Entré a GGA");
+            puts("Entré a GGA");
             
 		} else if(!(strcmp(aux, ZDA_INDICATOR))) {
 			structs->zda->time_flag = TRUE;
 			if((st = read_nmea_zda(f, structs, checksum)) != ST_OK)
 				return st; 
 			zda2tkpt(tkpt, structs->zda); 
-           		 puts("Entré a ZDA");
+            puts("Entré a ZDA");
 
 		} else if(!(strcmp(aux, RMC_INDICATOR))) {
 			structs->zda->time_flag == TRUE;
@@ -66,7 +66,7 @@ status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs) {
 			if((st = read_nmea_rmc(f, structs, checksum)) != ST_OK)
 				return st; 
 			rmc2tkpt(tkpt, structs->rmc); 
-		    	puts("Entré a RMC");
+		    puts("Entré a RMC");
 		    
 		} else
 		/* Tirar error porque no se encontró "GGA", "ZDA" o "RMC" */
@@ -124,11 +124,13 @@ status_t get_nmea_data(unsigned int qfields, char string[][MAX_SUBSTR_NMEA], FIL
 			*current_checksum ^= c;
 			
 		}
-		
+		if(c == EOF)
+			return ST_EOF;
+
 		if(c == CHAR_DELIM || (c == CHAR_END_NMEA && (j == qfields - 1))) {
-			(string)[j][i] = '\0'; // piso la coma
+			(string)[j][i] = '\0'; 
 			if(c != CHAR_DELIM) 
-			    flag_end = TRUE; // veo si se alcanzó un '*'
+			    flag_end = TRUE; 
 			
 		} else
 		    return ST_IGNORE_STATEMENT;
@@ -136,17 +138,19 @@ status_t get_nmea_data(unsigned int qfields, char string[][MAX_SUBSTR_NMEA], FIL
 	
 	}
 	if(flag_end != TRUE)
-		while((c = fgetc(f)) != CHAR_END_NMEA && c != EOF) {// si no se había alcanzado el '*' sigue haciendo checksum hasta encontrarlo
+		while((c = fgetc(f)) != CHAR_END_NMEA && c != EOF) {
 			*current_checksum ^= c;
 		}
     
-    check1 = fgetc(f);
-    check2 = fgetc(f); // validar que no sea EOF
+    if((check1 = fgetc(f)) == EOF)
+		return ST_EOF;    
+    if((check2 = fgetc(f)) == EOF)
+		return ST_EOF; 
     
-	hexstring_2_integer((char)check1, (char)check2, &nmea_checksum); //validar
-
+	hexstring_2_integer((char)check1, (char)check2, &nmea_checksum); 
+	
 	if(nmea_checksum != *current_checksum) 
-		return ST_IGNORE_STATEMENT;
+		return ST_INVALID_CHECKSUM;
 	return ST_OK;
 }
 
