@@ -1,4 +1,3 @@
-
 #define GGA_FIELDS 12
 #define ZDA_FIELDS 6
 #define RMC_FIELDS 10
@@ -29,6 +28,7 @@
 #define RMC_LONG_W_E_FIELD 3
 #define RMC_SPEED_FIELD 5
 #define RMC_ANGLE_FIELD 6
+#define RMC_DATE_FIELD 7
 #define RMC_MAGNETIC_FIELD 8
 
 #define CHAR_INIT_NMEA '$'
@@ -53,6 +53,10 @@
 #define SECONDS_DIGITS 2
 #define MILISECONDS_DIGITS 3
 #define MILISECONDS_DIGITS_ZDA 2
+#define DAY_DIGITS 2
+#define MONTH_DIGITS 2
+#define YEAR_DIGITS 2
+#define YEAR_OFFSET 2000
 
 /* macros de latitud y longitud */
 #define NMEA_LATITUDE_DEGREES 2
