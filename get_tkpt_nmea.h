@@ -96,7 +96,6 @@
 #define RMC_CHAR_V 'V'
 
 
-
 status_t read_nmea_gga(FILE *, data_structs_s *, int);
 status_t read_nmea_zda(FILE *, data_structs_s *, int);
 status_t read_nmea_rmc(FILE *, data_structs_s *, int);
