@@ -1,4 +1,4 @@
-#define MAX_STR 30
+#define MAX_STR 50
 #define MSG_TIME_UPDATED "The current time has been updated" 
 #define MSG_DATE_UPDATED "The current date has been updated" 
 #define MSG_TKPT_GEN "Trackpoint generated successfully"
@@ -26,7 +26,8 @@ void log_print(FILE *, log_t);
 
 void log_print(FILE * f, log_t current_log) {
 
-	fprintf(f, "%s\n", log_dictionary[current_log]);
+	fprintf(f, "\n%s", log_dictionary[current_log]);
 
-	if(current_log >= UBX_LONG && CHECKSUM >= current_log)
+	if(current_log == UBX_LONG || current_log == UBX_TIME || current_log == UBX_DATE || current_log == INCORRECT_STATEMENT || current_log == INTERNAL_ERROR || current_long == CHECKSUM)
+		fprintf(f, "\n%s", log_dictionary[MSG_IGNORED_STATEMENT]);	
 }
