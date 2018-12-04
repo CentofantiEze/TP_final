@@ -585,14 +585,19 @@ status_t zda_time_difference(char * s, data_structs_s * structs) {
 status_t read_nmea_zda(FILE * f, data_structs_s * structs, int checksum) {
 	
 	char s[ZDA_FIELDS][MAX_SUBSTR_NMEA];
+	status_t st;
 
 	if(!f || !structs)
 		return ST_NULL_PTR;
 	
-	get_nmea_data(ZDA_FIELDS, s, f, &checksum); // validar
-	zda_time_of_fix(s[ZDA_TIME_FIELD], s[ZDA_Y_FIELD], s[ZDA_M_FIELD], s[ZDA_D_FIELD], structs); // chequear BIEN lo de struct tm arg (está mal, pero cómo iría?)
-	zda_time_zone(s[ZDA_TIMEZONE_FIELD], structs);
-	zda_time_difference(s[ZDA_DIFF_FIELD], structs);
+	if((st = get_nmea_data(ZDA_FIELDS, s, f, &checksum)) != ST_OK)
+		return st;
+	if((st = zda_time_of_fix(s[ZDA_TIME_FIELD], s[ZDA_Y_FIELD], s[ZDA_M_FIELD], s[ZDA_D_FIELD], structs)) != ST_OK)
+		return st; 
+	if((st = zda_time_zone(s[ZDA_TIMEZONE_FIELD], structs)) != ST_OK)
+		return st;
+	if((st = zda_time_difference(s[ZDA_DIFF_FIELD], structs)) != ST_OK)
+		return st;
 
 	return ST_OK;
 
@@ -845,18 +850,27 @@ status_t rmc_longitude(char * str1, char * str2, data_structs_s * structs, void 
 status_t read_nmea_rmc(FILE * f, data_structs_s * structs, int checksum) {
 	
 	char s[RMC_FIELDS][MAX_SUBSTR_NMEA];
+	status_t st;
 
 	if(!f || !structs)
 		return ST_NULL_PTR;
 	
-	get_nmea_data(RMC_FIELDS, s, f, &checksum); // validar
-	rmc_time_of_fix(s[RMC_TIME_FIELD], s[RMC_DATE_FIELD], structs);
-	rmc_status(s[RMC_STATUS_FIELD], structs);
-	latitude(s[RMC_LAT_FIELD], s[RMC_LAT_N_S_FIELD], structs, structs->rmc);
-	longitude(s[RMC_LONG_FIELD], s[RMC_LONG_W_E_FIELD], structs, structs->rmc);
-	rmc_speed(s[RMC_SPEED_FIELD], structs);
-	rmc_angle(s[RMC_ANGLE_FIELD], structs);
-	rmc_magnetic_deviation(s[RMC_MAGNETIC_FIELD], structs);
+	if((st = get_nmea_data(RMC_FIELDS, s, f, &checksum)) != ST_OK) 
+		return st;
+	if((st = rmc_time_of_fix(s[RMC_TIME_FIELD], s[RMC_DATE_FIELD], structs)) != ST_OK) 
+		return st;
+	if((st = rmc_status(s[RMC_STATUS_FIELD], structs)) != ST_OK) 
+		return st;
+	if((st = latitude(s[RMC_LAT_FIELD], s[RMC_LAT_N_S_FIELD], structs, structs->rmc)) != ST_OK) 
+		return st;
+	if((st = longitude(s[RMC_LONG_FIELD], s[RMC_LONG_W_E_FIELD], structs, structs->rmc)) != ST_OK) 
+		return st;
+	if((st = rmc_speed(s[RMC_SPEED_FIELD], structs)) != ST_OK) 
+		return st;
+	if((st = rmc_angle(s[RMC_ANGLE_FIELD], structs)) != ST_OK) 
+		return st;
+	if((st = rmc_magnetic_deviation(s[RMC_MAGNETIC_FIELD], structs)) != ST_OK) 
+		return st;
 
 	return ST_OK;
 
