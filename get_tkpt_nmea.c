@@ -58,7 +58,7 @@ status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs) {
 			}
 			gga2tkpt(tkpt, structs->gga); 
 	
-            void_print(metadata->logfile, TIME_UPDATED);
+            log_print(metadata->logfile, TIME_UPDATED);
             
 		} else if(!(strcmp(aux, ZDA_INDICATOR))) {
 			structs->zda->time_flag = TRUE;
@@ -71,8 +71,8 @@ status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs) {
 			}
 			zda2tkpt(tkpt, structs->zda); 
             
-            void_print(metadata->logfile, TIME_UPDATED);
-            void_print(metadata->logfile, DATE_UPDATED);
+            log_print(metadata->logfile, TIME_UPDATED);
+            log_print(metadata->logfile, DATE_UPDATED);
 
 		} else if(!(strcmp(aux, RMC_INDICATOR))) {
 			structs->zda->time_flag == TRUE;
@@ -86,8 +86,8 @@ status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs) {
 			}
 			rmc2tkpt(tkpt, structs->rmc); 
 		    
-		    void_print(metadata->logfile, TIME_UPDATED);
-            void_print(metadata->logfile, DATE_UPDATED);
+		    log_print(metadata->logfile, TIME_UPDATED);
+            log_print(metadata->logfile, DATE_UPDATED);
 		    
 		} else
 			log_print(metadata->logfile, IGNORE_STATEMENT);
@@ -95,10 +95,11 @@ status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs) {
 	} /* while */
 	
 	            
-    void_print(metadata->logfile, TKPT_GEN);
+    log_print(metadata->logfile, TKPT_GEN);
 	return ST_OK;
 
 }
+
 
 status_t hexstring_2_integer(int d1, int d2, int *dec_num) {
 
