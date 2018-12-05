@@ -1,10 +1,12 @@
 typedef enum {FALSE, TRUE} bool_t;
 typedef enum {P_NMEA = 1, P_UBX = 2, P_AUTO = 3} protocol_t;
-typedef enum {ST_OK, ST_NULL_PTR, ST_INVALID_ARGUMENT, ST_NO_MEM, ST_ERR_OPEN_IN_FILE, ST_ERR_OPEN_OUT_FILE, ST_ERR_OPEN_LOG_FILE, ST_NO_PROTOCOL, ST_ERROR_EOF, ST_CORRUPT_FILE, ST_LIST_FULL, ST_LIST_EMPTY, ST_IGNORE_STATEMENT, ST_NUMERICAL_ERROR} status_t;
+typedef enum {ST_OK, ST_NULL_PTR, ST_INVALID_ARGUMENT, ST_NO_MEM, ST_ERR_OPEN_IN_FILE, ST_ERR_OPEN_OUT_FILE, ST_ERR_OPEN_LOG_FILE, ST_NO_PROTOCOL, ST_ERROR_EOF, ST_CORRUPT_FILE, ST_LIST_FULL, ST_LIST_EMPTY, ST_IGNORE_STATEMENT, ST_NUMERICAL_ERROR, ST_INVALID_CHECKSUM, ST_INVALID_DATE, ST_INVALID_TIME, ST_INVALID_FIX} status_t;
 typedef enum {FIX_INVALID, FIX_GPS, FIX_DGPS, FIX_PPS, FIX_RTK, FIX_FLOAT_RTK, FIX_ESTIMATED, FIX_MANUAL, FIX_SIMULATION} fix_quality_gga_t;
 typedef enum {FIX_NO, FIX_DEAD_RECKONING, FIX_2D, FIX_3D, FIX_COMBINED, FIX_TIME_ONLY} fix_pvt_t;
 typedef enum {A, V} rmc_status_t;
 typedef enum {PROCESS_ZERO, PROCESS_ONE, PROCESS_TWO, PROCESS_ALL} process_t;
+typedef unsigned char uchar;
+typedef unsigned int uint;
 
 
 struct arg {
@@ -24,6 +26,7 @@ struct arg {
 typedef struct arg arg_s;
 
 struct tkpt {
+	bool_t time_flag;
 	struct tm tkpt_time;
 	int tkpt_msec;
 	double latitude;
@@ -86,7 +89,9 @@ typedef struct zda zda_s;
 struct nav_pvt {
 	int pvt_elapsed_time;
 	struct tm pvt_time;
+	uchar validity_flags;
 	fix_pvt_t fix;
+	uchar flags;
 	unsigned int n_sat;
 	double latitude;
 	double longitude;
@@ -98,17 +103,17 @@ typedef struct nav_pvt nav_pvt_s;
 
 
 struct tim_tos {
-	unsigned char version; // ????
-	// GNSS utilizado ???
+	uint version;
+	uint GNSS;
 	struct tm tim_time;
-	unsigned int week_number;
-	unsigned long segs_elapsed;
+	uint week_number;
+	uint segs_elapsed;
 };
 typedef struct tim_tos tim_tos_s;
 
 
 struct nav_posllh {
-	int nav_elapsed_time;
+	uint posllh_elapsed_time;
 	double latitude;
 	double longitude;
 	double elipsode_height;

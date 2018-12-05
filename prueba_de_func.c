@@ -20,13 +20,17 @@
 #include "get_tkpt_nmea.h"
 #include "get_tkpt_nmea.c"
 
+#include "logs.c"
+
+#include "get_tkpt_ubx.c"
+
 int main(int argc, const char ** argv) {
 
 	arg_s * metadata = NULL;
 	status_t st;
 	List * list = NULL;
 	data_structs_s * data_structs = NULL;
-
+	status_t (*get_tkpt[])(arg_s *, data_structs_s *) = {get_tkpt_nmea, get_tkpt_ubx};
 
 
 	metadata = arg_create(&st);
@@ -80,16 +84,18 @@ int main(int argc, const char ** argv) {
 
 	data_structs->gga->latitude = 24;
 
-	printf("%f\n", data_structs->rmc->latitude);
+	printf("%f\n", data_structs->gga->latitude);
 
 	printf("%f\n", data_structs->rmc->longitude);
 
 	for(int i = 0; i < 10; i++) {
-		st = get_tkpt_nmea(metadata, data_structs);
+		st = get_tkpt[metadata->protocol - 1](metadata, data_structs);
 		if(st != ST_OK) {
-			puts("Descartado");
+			printf("Descartado");
 			printf("%d\n", st);
 			i--;
+			if(st == ST_ERROR_EOF)
+				break;
 		} else {
 			st = list_append_tkpt(list, data_structs->tkpt, metadata->maxlen);
 			if(st != ST_OK) {

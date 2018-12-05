@@ -13,7 +13,7 @@ int main(int argc, const char ** argv) {
 	status_t st;
 	List * list = NULL;
 	process_t ran;
-	status_t (*get_trackpoint[])(FILE *, void **) = {get_trackpoint_nmea, get_trackpoint_ubx};
+	status_t (*get_trackpoint[])(arg_s *, data_structs *) = {get_trackpoint_nmea, get_trackpoint_ubx};
 	int data_protocol;
 	void * data_structs[DATA_S_TYPES];
 
