@@ -46,7 +46,6 @@ status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs) {
 		if(!(strcmp(aux, GGA_INDICATOR))) {
 			if(structs->zda->time_flag == TRUE) 
 			    tkpt_flag = TRUE;
-			puts("gga previo");
 			if((st = read_nmea_gga(f, structs, checksum)) != ST_OK) {
 				if(st == ST_INVALID_CHECKSUM)
     			    log_print(metadata->logfile, CHECKSUM);
@@ -57,11 +56,9 @@ status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs) {
 				return st; 
 			}
 		gga2tkpt(tkpt, structs->gga); 
-	        puts("entré a gga");
             	log_print(metadata->logfile, TIME_UPDATED);
             
 		} else if(!(strcmp(aux, ZDA_INDICATOR))) {
-		    puts("zda previo");
 			structs->zda->time_flag = TRUE;
 			if((st = read_nmea_zda(f, structs, checksum)) != ST_OK) {
 				if(st == ST_INVALID_CHECKSUM)
@@ -71,14 +68,12 @@ status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs) {
 				return st; 
 			}
 		zda2tkpt(tkpt, structs->zda); 
-		puts("entré a zda");
 		log_print(metadata->logfile, TIME_UPDATED);
 		log_print(metadata->logfile, DATE_UPDATED);
 
 		} else if(!(strcmp(aux, RMC_INDICATOR))) {
 			structs->zda->time_flag == TRUE;
 			tkpt_flag = TRUE;
-			puts("rmc previo");
 			if((st = read_nmea_rmc(f, structs, checksum)) != ST_OK) {
 			    printf("%d", st);
 				if(st == ST_INVALID_CHECKSUM)
@@ -89,7 +84,7 @@ status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs) {
 			}
 			
 		rmc2tkpt(tkpt, structs->rmc); 
-		puts("entré a rmc");
+
 		    
 		log_print(metadata->logfile, TIME_UPDATED);
             	log_print(metadata->logfile, DATE_UPDATED);
@@ -165,7 +160,6 @@ status_t get_nmea_data(unsigned int qfields, char string[][MAX_SUBSTR_NMEA], FIL
 			
 		} else
 		    return ST_IGNORE_STATEMENT;
-	puts(string[j]);
 	
 	}
 	if(flag_end != TRUE)
