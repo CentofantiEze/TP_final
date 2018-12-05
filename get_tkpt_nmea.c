@@ -43,63 +43,68 @@ status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs) {
 		}
 		aux[i] = '\0';
 		/* Busco hasta la coma y comparo con "GGA", "ZDA", "RMC". Guardo en aux */
-
 		if(!(strcmp(aux, GGA_INDICATOR))) {
 			if(structs->zda->time_flag == TRUE) 
 			    tkpt_flag = TRUE;
+			puts("gga previo");
 			if((st = read_nmea_gga(f, structs, checksum)) != ST_OK) {
 				if(st == ST_INVALID_CHECKSUM)
-					log_print(metadata->logfile, CHECKSUM);
+    			    log_print(metadata->logfile, CHECKSUM);
 				if(st == ST_INVALID_FIX)
-					log_print(metadata->logfile, NMEA_FIX);
+				    log_print(metadata->logfile, NMEA_FIX);
 				else
-					log_print(metadata->logfile, INTERNAL_ERROR);
+				    log_print(metadata->logfile, INTERNAL_ERROR);
 				return st; 
 			}
-			gga2tkpt(tkpt, structs->gga); 
-	
-            log_print(metadata->logfile, TIME_UPDATED);
+		gga2tkpt(tkpt, structs->gga); 
+	        puts("entré a gga");
+            	log_print(metadata->logfile, TIME_UPDATED);
             
 		} else if(!(strcmp(aux, ZDA_INDICATOR))) {
+		    puts("zda previo");
 			structs->zda->time_flag = TRUE;
 			if((st = read_nmea_zda(f, structs, checksum)) != ST_OK) {
 				if(st == ST_INVALID_CHECKSUM)
-					log_print(metadata->logfile, CHECKSUM);
+				    log_print(metadata->logfile, CHECKSUM);
 				else
-					log_print(metadata->logfile, INTERNAL_ERROR);
+				    log_print(metadata->logfile, INTERNAL_ERROR);
 				return st; 
 			}
-			zda2tkpt(tkpt, structs->zda); 
-            
-            log_print(metadata->logfile, TIME_UPDATED);
-            log_print(metadata->logfile, DATE_UPDATED);
+		zda2tkpt(tkpt, structs->zda); 
+		puts("entré a zda");
+		log_print(metadata->logfile, TIME_UPDATED);
+		log_print(metadata->logfile, DATE_UPDATED);
 
 		} else if(!(strcmp(aux, RMC_INDICATOR))) {
 			structs->zda->time_flag == TRUE;
 			tkpt_flag = TRUE;
+			puts("rmc previo");
 			if((st = read_nmea_rmc(f, structs, checksum)) != ST_OK) {
+			    printf("%d", st);
 				if(st == ST_INVALID_CHECKSUM)
 					log_print(metadata->logfile, CHECKSUM);
 				else
 					log_print(metadata->logfile, INTERNAL_ERROR);
 				return st; 
 			}
-			rmc2tkpt(tkpt, structs->rmc); 
+			
+		rmc2tkpt(tkpt, structs->rmc); 
+		puts("entré a rmc");
 		    
-		    log_print(metadata->logfile, TIME_UPDATED);
-            log_print(metadata->logfile, DATE_UPDATED);
+		log_print(metadata->logfile, TIME_UPDATED);
+            	log_print(metadata->logfile, DATE_UPDATED);
 		    
-		} else
+		} else {
 			log_print(metadata->logfile, IGNORE_STATEMENT);
-		    return ST_IGNORE_STATEMENT;
+		    //return ST_IGNORE_STATEMENT;
+		}
 	} /* while */
 	
 	            
-    log_print(metadata->logfile, TKPT_GEN);
+    	log_print(metadata->logfile, TKPT_GEN);
 	return ST_OK;
 
 }
-
 
 status_t hexstring_2_integer(int d1, int d2, int *dec_num) {
 
@@ -128,7 +133,6 @@ status_t hexstring_2_integer(int d1, int d2, int *dec_num) {
 	}
 
 	*dec_num = (int)hex1 * HEX_DIGITS + hex2;
-
 	return ST_OK;
 
 }
@@ -143,13 +147,14 @@ status_t get_nmea_data(unsigned int qfields, char string[][MAX_SUBSTR_NMEA], FIL
 	if(!string || !f || !current_checksum)
 		return ST_NULL_PTR;
 	fgetc(f);
+	printf("%d\n", *current_checksum);
 	for(j = 0; j < qfields; j++) {
 		for(i = 0; (c = (string)[j][i] = fgetc(f))!= EOF && c != CHAR_DELIM && c != CHAR_INIT_NMEA && c != CHAR_END_NMEA; i++) {
 			*current_checksum ^= c;
-			
 		}
+		*current_checksum ^= CHAR_DELIM;
 		if(c == EOF)
-			return ST_EOF;
+	        return ST_EOF;
 
 		if(c == CHAR_DELIM || (c == CHAR_END_NMEA && (j == qfields - 1))) {
 			(string)[j][i] = '\0'; 
@@ -158,21 +163,21 @@ status_t get_nmea_data(unsigned int qfields, char string[][MAX_SUBSTR_NMEA], FIL
 			
 		} else
 		    return ST_IGNORE_STATEMENT;
-		
+	puts(string[j]);
 	
 	}
 	if(flag_end != TRUE)
 		while((c = fgetc(f)) != CHAR_END_NMEA && c != EOF) {
-			*current_checksum ^= c;
+		*current_checksum ^= c;
 		}
     
     if((check1 = fgetc(f)) == EOF)
-		return ST_EOF;    
+	    return ST_EOF;    
     if((check2 = fgetc(f)) == EOF)
-		return ST_EOF; 
+	    return ST_EOF; 
+
     
 	hexstring_2_integer((char)check1, (char)check2, &nmea_checksum); 
-
 	if(nmea_checksum != *current_checksum) 
 		return ST_INVALID_CHECKSUM;
 	return ST_OK;
@@ -428,19 +433,29 @@ status_t gga_undulation_of_geoid(char * s, data_structs_s * structs) {
 status_t read_nmea_gga(FILE * f, data_structs_s * structs, int checksum) {
 	
 	char s[GGA_FIELDS][MAX_SUBSTR_NMEA];
-
+    status_t st;
+    
 	if(!f || !structs)
 		return ST_NULL_PTR;
 
-	get_nmea_data(GGA_FIELDS, s, f, &checksum); // validar
-	gga_time_of_fix(s[GGA_TIME_FIELD], structs); // chequear BIEN lo de struct tm arg (está mal, pero cómo iría?)
-	latitude(s[GGA_LAT_FIELD], s[GGA_LAT_N_S_FIELD], structs, structs->gga);
-	longitude(s[GGA_LONG_FIELD], s[GGA_LONG_W_E_FIELD], structs, structs->gga);
-	gga_quality_of_fix(s[GGA_FIX_FIELD], structs);
-	gga_num_of_satellites(s[GGA_SAT_FIELD], structs);
-	gga_hdop(s[GGA_HDOP_FIELD], structs);
-	gga_elevation(s[GGA_ELEV_FIELD], structs);
-	gga_undulation_of_geoid(s[GGA_UNDULATION_FIELD], structs);
+	if((st = get_nmea_data(GGA_FIELDS, s, f, &checksum)) != ST_OK) 
+		return st;
+	if((st = gga_time_of_fix(s[GGA_TIME_FIELD], structs)) != ST_OK) 
+		return st;
+	if((st = latitude(s[GGA_LAT_FIELD], s[GGA_LAT_N_S_FIELD], structs, structs->gga)) != ST_OK) 
+		return st;
+	if((st = longitude(s[GGA_LONG_FIELD], s[GGA_LONG_W_E_FIELD], structs, structs->gga)) != ST_OK) 
+		return st;
+	if((st = gga_quality_of_fix(s[GGA_FIX_FIELD], structs)) != ST_OK) 
+		return st;
+	if((st = gga_num_of_satellites(s[GGA_SAT_FIELD], structs)) != ST_OK) 
+		return st;
+	if((st = gga_hdop(s[GGA_HDOP_FIELD], structs)) != ST_OK) 
+		return st;
+	if((st = gga_elevation(s[GGA_ELEV_FIELD], structs)) != ST_OK) 
+		return st;
+	if((st = gga_undulation_of_geoid(s[GGA_UNDULATION_FIELD], structs)) != ST_OK) 
+		return st;
 
 
 	return ST_OK;
@@ -645,7 +660,7 @@ status_t rmc_time_of_fix(char * str1, char * str2, data_structs_s * structs) {
 	aux[HOURS_DIGITS] = '\0';
 
 	hours = strtoul(aux, &end_ptr, 10);
-	if(*end_ptr != '\0') {
+	if(*end_ptr != '\0' && *end_ptr != '\n') {
 		return ST_NUMERICAL_ERROR;	
 	}
 
@@ -654,7 +669,7 @@ status_t rmc_time_of_fix(char * str1, char * str2, data_structs_s * structs) {
 	aux[MINUTES_DIGITS] = '\0';
 
 	minutes = strtoul(aux, &end_ptr, 10);
-	if(*end_ptr != '\0') {
+	if(*end_ptr != '\0' && *end_ptr != '\n') {
 		return ST_NUMERICAL_ERROR;	
 	}
 
@@ -663,7 +678,7 @@ status_t rmc_time_of_fix(char * str1, char * str2, data_structs_s * structs) {
 	aux[SECONDS_DIGITS] = '\0';
 
 	seconds = strtof(aux, &end_ptr);
-	if(*end_ptr != '\0') {
+	if(*end_ptr != '\0' && *end_ptr != '\n') {
 		return ST_NUMERICAL_ERROR;
 	}
 	
@@ -672,7 +687,7 @@ status_t rmc_time_of_fix(char * str1, char * str2, data_structs_s * structs) {
 	aux[MILISECONDS_DIGITS] = '\0';
 
 	miliseconds = strtoul(aux, &end_ptr, 10);
-	if(*end_ptr != '\0') {
+	if(*end_ptr != '\0' && *end_ptr != '\n') {
 		return ST_NUMERICAL_ERROR;
 	}
 
@@ -681,7 +696,7 @@ status_t rmc_time_of_fix(char * str1, char * str2, data_structs_s * structs) {
 	aux[DAY_DIGITS] = '\0';
 
 	day = strtoul(aux, &end_ptr, 10);
-	if(*end_ptr != '\0') {
+	if(*end_ptr != '\0' && *end_ptr != '\n') {
 		return ST_NUMERICAL_ERROR;	
 	}
 
@@ -690,7 +705,7 @@ status_t rmc_time_of_fix(char * str1, char * str2, data_structs_s * structs) {
 	aux[MONTH_DIGITS] = '\0';
 
 	month = strtoul(aux, &end_ptr, 10);
-	if(*end_ptr != '\0') {
+	if(*end_ptr != '\0' && *end_ptr != '\n') {
 		return ST_NUMERICAL_ERROR;	
 	}
 
@@ -699,7 +714,7 @@ status_t rmc_time_of_fix(char * str1, char * str2, data_structs_s * structs) {
 	aux[YEAR_DIGITS] = '\0';
 
 	year = strtof(aux, &end_ptr);
-	if(*end_ptr != '\0') {
+	if(*end_ptr != '\0' && *end_ptr != '\n') {
 		return ST_NUMERICAL_ERROR;
 	}
 
@@ -812,7 +827,6 @@ status_t rmc_latitude(char * str1, char * str2, data_structs_s * structs, void *
 	if(*end_ptr != '\0') {
 		return ST_NUMERICAL_ERROR;
 	}
-	
 	strncpy(aux, str1 + read_digits, NMEA_LATITUDE_MINUTES); // validar
 	read_digits += NMEA_LATITUDE_MINUTES;
 	aux[read_digits] = '\0';
@@ -826,9 +840,9 @@ status_t rmc_latitude(char * str1, char * str2, data_structs_s * structs, void *
 	if(str2[0] == SOUTH_CHAR) {
 		south_flag = -1;
 	}
-	
+
 	lat = south_flag * (degrees + minutes / CONVERSION_FACTOR_MINUTES);
-	structs->rmc->latitude = lat; // esto está bien??
+	structs->rmc->latitude = lat; 
 
 
 	return ST_OK;
@@ -889,9 +903,9 @@ status_t read_nmea_rmc(FILE * f, data_structs_s * structs, int checksum) {
 		return st;
 	if((st = rmc_status(s[RMC_STATUS_FIELD], structs)) != ST_OK) 
 		return st;
-	if((st = latitude(s[RMC_LAT_FIELD], s[RMC_LAT_N_S_FIELD], structs, structs->rmc)) != ST_OK) 
+	if((st = rmc_latitude(s[RMC_LAT_FIELD], s[RMC_LAT_N_S_FIELD], structs, structs->rmc)) != ST_OK) 
 		return st;
-	if((st = longitude(s[RMC_LONG_FIELD], s[RMC_LONG_W_E_FIELD], structs, structs->rmc)) != ST_OK) 
+	if((st = rmc_longitude(s[RMC_LONG_FIELD], s[RMC_LONG_W_E_FIELD], structs, structs->rmc)) != ST_OK) 
 		return st;
 	if((st = rmc_speed(s[RMC_SPEED_FIELD], structs)) != ST_OK) 
 		return st;
