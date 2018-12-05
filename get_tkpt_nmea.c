@@ -33,7 +33,7 @@ status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs) {
 		}
 		aux[i] = '\0';
 		if((strcmp(aux, GP_INDICATOR))) {
-			/* tirar warning */
+			log_print(metadata->logfile, NMEA_GP);
 		}
 
 		for(i = 0; i < NMEA_PROTOCOL; i++) {
@@ -47,35 +47,59 @@ status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs) {
 		if(!(strcmp(aux, GGA_INDICATOR))) {
 			if(structs->zda->time_flag == TRUE) 
 			    tkpt_flag = TRUE;
-			if((st = read_nmea_gga(f, structs, checksum)) != ST_OK)
+			if((st = read_nmea_gga(f, structs, checksum)) != ST_OK) {
+				if(st == ST_INVALID_CHECKSUM)
+					log_print(metadata->logfile, CHECKSUM);
+				if(st == ST_INVALID_FIX)
+					log_print(metadata->logfile, NMEA_FIX);
+				else
+					log_print(metadata->logfile, INTERNAL_ERROR);
 				return st; 
+			}
 			gga2tkpt(tkpt, structs->gga); 
 	
-            puts("Entré a GGA");
+            log_print(metadata->logfile, TIME_UPDATED);
             
 		} else if(!(strcmp(aux, ZDA_INDICATOR))) {
 			structs->zda->time_flag = TRUE;
-			if((st = read_nmea_zda(f, structs, checksum)) != ST_OK)
+			if((st = read_nmea_zda(f, structs, checksum)) != ST_OK) {
+				if(st == ST_INVALID_CHECKSUM)
+					log_print(metadata->logfile, CHECKSUM);
+				else
+					log_print(metadata->logfile, INTERNAL_ERROR);
 				return st; 
+			}
 			zda2tkpt(tkpt, structs->zda); 
-            puts("Entré a ZDA");
+            
+            log_print(metadata->logfile, TIME_UPDATED);
+            log_print(metadata->logfile, DATE_UPDATED);
 
 		} else if(!(strcmp(aux, RMC_INDICATOR))) {
 			structs->zda->time_flag = TRUE;
 			tkpt_flag = TRUE;
-			if((st = read_nmea_rmc(f, structs, checksum)) != ST_OK)
+			if((st = read_nmea_rmc(f, structs, checksum)) != ST_OK) {
+				if(st == ST_INVALID_CHECKSUM)
+					log_print(metadata->logfile, CHECKSUM);
+				else
+					log_print(metadata->logfile, INTERNAL_ERROR);
 				return st; 
+			}
 			rmc2tkpt(tkpt, structs->rmc); 
-		    puts("Entré a RMC");
+		    
+		    log_print(metadata->logfile, TIME_UPDATED);
+            log_print(metadata->logfile, DATE_UPDATED);
 		    
 		} else
-		/* Tirar error porque no se encontró "GGA", "ZDA" o "RMC" */
+			log_print(metadata->logfile, IGNORE_STATEMENT);
 		    return ST_IGNORE_STATEMENT;
 	} /* while */
 	
+	            
+    log_print(metadata->logfile, TKPT_GEN);
 	return ST_OK;
 
 }
+
 
 status_t hexstring_2_integer(int d1, int d2, int *dec_num) {
 
@@ -148,7 +172,7 @@ status_t get_nmea_data(unsigned int qfields, char string[][MAX_SUBSTR_NMEA], FIL
 		return ST_ERROR_EOF; 
     
 	hexstring_2_integer((char)check1, (char)check2, &nmea_checksum); 
-	
+
 	if(nmea_checksum != *current_checksum) 
 		return ST_INVALID_CHECKSUM;
 	return ST_OK;
@@ -309,13 +333,9 @@ status_t gga_quality_of_fix(char * s, data_structs_s * structs) {
 		return ST_NULL_PTR;
 	}
 
-	if(!isdigit(s[0])) {
-		return ST_NUMERICAL_ERROR;
-	}
-	if(option > MAX_QUALITY) {
-		return ST_NUMERICAL_ERROR;
-	}
-		
+	if(!isdigit(s[0]) || option > MAX_QUALITY) 
+		return ST_INVALID_FIX;
+
 	structs->gga->quality = option;
 
 
