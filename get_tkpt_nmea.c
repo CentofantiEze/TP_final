@@ -96,7 +96,9 @@ status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs) {
 		    
 		} else {
 			log_print(metadata->logfile, IGNORED_STATEMENT);
-		    //return ST_IGNORE_STATEMENT;
+			//return ST_IGNORE_STATEMENT;
+			if(c == EOF)
+	            		return ST_EOF;
 		}
 	} /* while */
 	
