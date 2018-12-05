@@ -151,7 +151,7 @@ status_t get_tkpt_ubx(arg_s * metadata, data_structs_s * data_structs) {
     		log_print(metadata->logfile, TIME_UPDATED);
     		log_print(metadata->logfile, DATE_UPDATED);
     		log_print(metadata->logfile, TKPT_GEN);
-puts("tkpt-nav-pvt");
+
     		return ST_OK;
     	} 
 
@@ -172,7 +172,7 @@ puts("tkpt-nav-pvt");
 				return st;
 
 			if(data_structs->tkpt->time_flag == TRUE) {
-				puts("tkpt-nav-pos-llh");
+
 				log_print(metadata->logfile, TKPT_GEN);
 				return ST_OK;
 			}
@@ -196,7 +196,7 @@ puts("tkpt-nav-pvt");
     		log_print(metadata->logfile, TIME_UPDATED);
     		log_print(metadata->logfile, DATE_UPDATED);
     		log_print(metadata->logfile, TKPT_GEN);
-puts("tkpt-nav-pvt");
+
     		return ST_OK;
     	}
 
@@ -209,7 +209,7 @@ puts("tkpt-nav-pvt");
 				return st;
 
 			if(data_structs->tkpt->time_flag == TRUE) {
-				puts("tkpt-nav-pos-llh");
+
 				log_print(metadata->logfile, TKPT_GEN);
 				return ST_OK;
 			}
@@ -249,10 +249,11 @@ status_t search_sync(FILE * f) {
 
 
 status_t load_tim_tos(arg_s * metadata, tim_tos_s * tim_tos, size_t l, uchar cksm1, uchar cksm2) {
-puts("tim_tos");	
+
 	FILE * f = NULL;
 	size_t i;
-	uchar aux, aux2;
+	uchar aux;
+	unsigned int aux_unsig;
 
 
 	if(! tim_tos || ! metadata)
@@ -289,16 +290,16 @@ puts("tim_tos");
 	
 	cksm1 += aux;
 	cksm2 += cksm1;
-	aux2 = aux;
+	aux_unsig = (unsigned int)aux;
 	
 	if(fread(&aux, sizeof(uchar), 1, f) != 1)
 	    return ST_CORRUPT_FILE;
 	
 	cksm1 += aux;
 	cksm2 += cksm1;
-	aux2 += CONV_LTL_ENDN_2 * aux;
+	aux_unsig += CONV_LTL_ENDN_2 * (unsigned int)aux;
 		
-	tim_tos->tim_time.tm_year = (int)aux2;
+	tim_tos->tim_time.tm_year = (int)aux_unsig;
 	
 	if(fread(&aux, sizeof(uchar), 1, f) != 1) //Lee mes y lo guarda en la estructura tim_tos
 	    return ST_CORRUPT_FILE;
@@ -350,60 +351,60 @@ puts("tim_tos");
 	
 	cksm1 += aux;
 	cksm2 += cksm1;
-	aux2 = aux;
+	aux_unsig = (unsigned int)aux;
 	
 	if(fread(&aux, sizeof(uchar), 1, f) != 1)
 	    return ST_CORRUPT_FILE;
 	
 	cksm1 += aux;
 	cksm2 += cksm1;
-	aux2 += CONV_LTL_ENDN_2 * aux;
+	aux_unsig += CONV_LTL_ENDN_2 * (unsigned int)aux;
 
 	if(fread(&aux, sizeof(uchar), 1, f) != 1)
 	    return ST_CORRUPT_FILE;
 	
 	cksm1 += aux;
 	cksm2 += cksm1;
-	aux2 = CONV_LTL_ENDN_3 * aux;
+	aux_unsig = CONV_LTL_ENDN_3 * (unsigned int)aux;
 	
 	if(fread(&aux, sizeof(uchar), 1, f) != 1)
 	    return ST_CORRUPT_FILE;
 	
 	cksm1 += aux;
 	cksm2 += cksm1;
-	aux2 += CONV_LTL_ENDN_4 * aux;
+	aux_unsig += CONV_LTL_ENDN_4 * (unsigned int)aux;
 
-	tim_tos->week_number = (uint)aux2;
+	tim_tos->week_number = (uint)aux_unsig;
 	
 	if(fread(&aux, sizeof(uchar), 1, f) != 1)
 	    return ST_CORRUPT_FILE;
 	
 	cksm1 += aux;
 	cksm2 += cksm1;
-	aux2 = aux;
+	aux_unsig = (unsigned int)aux;
 	
 	if(fread(&aux, sizeof(uchar), 1, f) != 1)
 	    return ST_CORRUPT_FILE;
 	
 	cksm1 += aux;
 	cksm2 += cksm1;
-	aux2 += CONV_LTL_ENDN_2 * aux;
+	aux_unsig += CONV_LTL_ENDN_2 * (unsigned int)aux;
 
 	if(fread(&aux, sizeof(uchar), 1, f) != 1)
 	    return ST_CORRUPT_FILE;
 	
 	cksm1 += aux;
 	cksm2 += cksm1;
-	aux2 = CONV_LTL_ENDN_3 * aux;
+	aux_unsig = CONV_LTL_ENDN_3 * (unsigned int)aux;
 	
 	if(fread(&aux, sizeof(uchar), 1, f) != 1)
 	    return ST_CORRUPT_FILE;
 	
 	cksm1 += aux;
 	cksm2 += cksm1;
-	aux2 += CONV_LTL_ENDN_4 * aux;
+	aux_unsig += CONV_LTL_ENDN_4 * (unsigned int)aux;
 
-	tim_tos->segs_elapsed = (uint)aux2;
+	tim_tos->segs_elapsed = (uint)aux_unsig;
 
 	for(i = 0; i < IGNORE_BYTES_TIM_TOS_3; i++) {
 
@@ -436,7 +437,7 @@ puts("tim_tos");
 
 
 status_t load_nav_pvt(arg_s * metadata, nav_pvt_s *nav_pvt, size_t l, uchar cksm1, uchar cksm2) {
-puts("nav_pvt");
+
 	FILE * f = NULL;
 	size_t i;
     uchar aux;
@@ -587,11 +588,11 @@ puts("nav_pvt");
 	
 	if(read_signed_4(f, &cksm1, &cksm2, &aux_sign) != ST_OK)
 		return ST_CORRUPT_FILE;
-    nav_pvt->longitude = aux_sign / LONGITUDE_SCALE;
+    nav_pvt->longitude = (double)aux_sign / LONGITUDE_SCALE;
 	
 	if(read_signed_4(f, &cksm1, &cksm2, &aux_sign) != ST_OK)
 		return ST_CORRUPT_FILE;
-    nav_pvt->latitude = aux_sign / LATITUDE_SCALE;
+    nav_pvt->latitude = (double)aux_sign / LATITUDE_SCALE;
 
 	if(read_signed_4(f, &cksm1, &cksm2, &aux_sign) != ST_OK)
 		return ST_CORRUPT_FILE;
@@ -660,7 +661,7 @@ puts("nav_pvt");
 }
 
 status_t load_nav_posllh(arg_s * metadata, nav_posllh_s * nav_posllh, size_t l, uchar cksm1, uchar cksm2) {
-puts("posllh");
+
 	FILE * f = NULL;
 	uchar aux;
 	unsigned int aux_unsig;
@@ -678,11 +679,11 @@ puts("posllh");
 
 	if(read_signed_4(f, &cksm1, &cksm2, &aux_sign) != ST_OK)
 		return ST_CORRUPT_FILE;
-    nav_posllh->longitude = aux_sign / LONGITUDE_SCALE;
+    nav_posllh->longitude = (double)aux_sign / LONGITUDE_SCALE;
 	
 	if(read_signed_4(f, &cksm1, &cksm2, &aux_sign) != ST_OK)
 		return ST_CORRUPT_FILE;
-    nav_posllh->latitude = aux_sign / LATITUDE_SCALE;
+    nav_posllh->latitude = (double)aux_sign / LATITUDE_SCALE;
 
 	if(read_signed_4(f, &cksm1, &cksm2, &aux_sign) != ST_OK)
 		return ST_CORRUPT_FILE;
@@ -857,43 +858,44 @@ status_t read_unsigned_4(FILE * f, uchar * cksm1, uchar * cksm2, unsigned int * 
 
 status_t read_signed_4(FILE * f, uchar * cksm1, uchar * cksm2, long * val) {
 
-	uchar aux;
+	uchar aux1, aux2, aux3, aux4;
 
 	if(! f || ! cksm1 || ! cksm2 || ! val)
 		return ST_NULL_PTR;
 
 	*val = 0;
 
-	if(fread(&aux, sizeof(uchar), 1, f) != 1)
+	if(fread(&aux1, sizeof(uchar), 1, f) != 1)
 		return ST_CORRUPT_FILE;
 
-	*val |= (long)aux;
-	*cksm1 += aux;
+	*cksm1 += aux1;
 	*cksm2 += *cksm1;
 
-
-	if(fread(&aux, sizeof(uchar), 1, f) != 1)
+	if(fread(&aux2, sizeof(uchar), 1, f) != 1)
 		return ST_CORRUPT_FILE;
 
-	*val |= ((long)aux << SHIFT_DOUBLE_B1);
-	*cksm1 += aux;
+	*cksm1 += aux2;
 	*cksm2 += *cksm1;
 
-
-	if(fread(&aux, sizeof(uchar), 1, f) != 1)
+	if(fread(&aux3, sizeof(uchar), 1, f) != 1)
 		return ST_CORRUPT_FILE;
 
-	*val |= ((long)aux << SHIFT_DOUBLE_B2);
-	*cksm1 += aux;
+	*cksm1 += aux3;
 	*cksm2 += *cksm1;
 
-
-	if(fread(&aux, sizeof(uchar), 1, f) != 1)
+	if(fread(&aux4, sizeof(uchar), 1, f) != 1)
 		return ST_CORRUPT_FILE;
 
-	*val |= ((long)aux << SHIFT_DOUBLE_B3);
-	*cksm1 += aux;
+	*cksm1 += aux4;
 	*cksm2 += *cksm1;
+
+	if(aux4 & 0x80) {
+
+		*val = ~aux1 + (~aux2) * CONV_LTL_ENDN_2 + (~aux3) * CONV_LTL_ENDN_3 + (~aux4) * CONV_LTL_ENDN_4 + 1;
+		*val *= -1;
+	}
+
+	*val = ~aux1 + aux2 * CONV_LTL_ENDN_2 + aux3 * CONV_LTL_ENDN_3 + aux4 * CONV_LTL_ENDN_4 + 1;
 
 	return ST_OK;
 }

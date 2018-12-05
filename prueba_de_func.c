@@ -24,6 +24,8 @@
 
 #include "get_tkpt_ubx.c"
 
+#include "print_gpx.c"
+
 int main(int argc, const char ** argv) {
 
 	arg_s * metadata = NULL;
@@ -82,11 +84,13 @@ int main(int argc, const char ** argv) {
 		return st;
 	}
 
+	gpx_open(metadata);
+
 	for(i = 0; i < 20; i++) {
 		st = get_tkpt[metadata->protocol - 1](metadata, data_structs);
 		if(st != ST_OK) {
-			printf("Descartado");
-			printf("%d\n", st);
+			printf("\nDescartado");
+			printf("%d\n\n", st);
 			i--;
 			if(st == ST_ERROR_EOF) {
 				puts("EOF");
@@ -99,11 +103,14 @@ int main(int argc, const char ** argv) {
 				printf("%d\n", st);
 				return 0;
 			}
-			printf("nodo %d %d\n",i,st);
+			
+			gpx_tkpt(data_structs->tkpt);
+
+
 		}
 	}
 
-	puts("fin");
+	gpx_close();
 
 	close_files(metadata);
 	free_metadata(metadata);

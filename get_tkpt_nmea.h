@@ -16,9 +16,9 @@
 #define GGA_UNDULATION_FIELD 10
 
 #define ZDA_TIME_FIELD 0
-#define ZDA_Y_FIELD 1
+#define ZDA_Y_FIELD 3
 #define ZDA_M_FIELD 2
-#define ZDA_D_FIELD 3
+#define ZDA_D_FIELD 1
 #define ZDA_TIMEZONE_FIELD 4
 #define ZDA_DIFF_FIELD 5
 
