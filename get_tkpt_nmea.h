@@ -1,6 +1,8 @@
+
+
 #define GGA_FIELDS 12
 #define ZDA_FIELDS 6
-#define RMC_FIELDS 10
+#define RMC_FIELDS 11
 
 #define GGA_TIME_FIELD 0
 #define GGA_LAT_FIELD 1
@@ -25,11 +27,11 @@
 #define RMC_LAT_FIELD 2
 #define RMC_LAT_N_S_FIELD 3
 #define RMC_LONG_FIELD 4
-#define RMC_LONG_W_E_FIELD 3
-#define RMC_SPEED_FIELD 5
-#define RMC_ANGLE_FIELD 6
-#define RMC_DATE_FIELD 7
-#define RMC_MAGNETIC_FIELD 8
+#define RMC_LONG_W_E_FIELD 5
+#define RMC_SPEED_FIELD 6
+#define RMC_ANGLE_FIELD 7
+#define RMC_DATE_FIELD 8
+#define RMC_MAGNETIC_FIELD 9
 
 #define CHAR_INIT_NMEA '$'
 #define CHAR_END_NMEA '*'
