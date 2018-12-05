@@ -168,7 +168,6 @@ status_t get_nmea_data(unsigned int qfields, char string[][MAX_SUBSTR_NMEA], FIL
 	}
 	if(flag_end != TRUE)
 		while((c = fgetc(f)) != CHAR_END_NMEA && c != EOF) {
-		*current_checksum ^= c;
 		}
     
     if((check1 = fgetc(f)) == EOF)
@@ -178,6 +177,7 @@ status_t get_nmea_data(unsigned int qfields, char string[][MAX_SUBSTR_NMEA], FIL
 
     
 	hexstring_2_integer((char)check1, (char)check2, &nmea_checksum); 
+	printf("|%d %d|\n", nmea_checksum, *current_checksum);
 	if(nmea_checksum != *current_checksum) 
 		return ST_INVALID_CHECKSUM;
 	return ST_OK;
@@ -821,15 +821,16 @@ status_t rmc_latitude(char * str1, char * str2, data_structs_s * structs, void *
 	/*[20] Lee los grados y minutos, los convierte a numeros y realiza el pasaje a grados.*/
 	strncpy(aux, str1, NMEA_LATITUDE_DEGREES); // validar
 	read_digits = NMEA_LATITUDE_DEGREES;
-	aux[read_digits] = '\0';
-
+	aux[NMEA_LATITUDE_DEGREES] = '\0';
+    
 	degrees = strtoul(aux, &end_ptr, 10);
 	if(*end_ptr != '\0') {
 		return ST_NUMERICAL_ERROR;
 	}
+	
 	strncpy(aux, str1 + read_digits, NMEA_LATITUDE_MINUTES); // validar
 	read_digits += NMEA_LATITUDE_MINUTES;
-	aux[read_digits] = '\0';
+	aux[NMEA_LATITUDE_MINUTES] = '\0';
 
 	minutes = strtof(aux, &end_ptr);
 	if(*end_ptr != '\0') {
@@ -866,7 +867,7 @@ status_t rmc_longitude(char * str1, char * str2, data_structs_s * structs, void 
 	aux[NMEA_LONGITUDE_DEGREES] = '\0';
 
 	degrees = strtoul(aux, &end_ptr, 10);
-	if(*end_ptr != '\0') {
+	if(*end_ptr != '\0' && *end_ptr != '\n') {
 		return ST_NUMERICAL_ERROR;
 	}
 
@@ -875,7 +876,7 @@ status_t rmc_longitude(char * str1, char * str2, data_structs_s * structs, void 
 	aux[NMEA_LONGITUDE_MINUTES] = '\0';
 
 	minutes = strtof(aux, &end_ptr);
-	if(*end_ptr != '\0') {
+	if(*end_ptr != '\0' && *end_ptr != '\n') {
 		return ST_NUMERICAL_ERROR;
 	}
 	
