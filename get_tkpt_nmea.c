@@ -95,7 +95,7 @@ status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs) {
             	log_print(metadata->logfile, DATE_UPDATED);
 		    
 		} else {
-			log_print(metadata->logfile, IGNORE_STATEMENT);
+			log_print(metadata->logfile, IGNORED_STATEMENT);
 		    //return ST_IGNORE_STATEMENT;
 		}
 	} /* while */
