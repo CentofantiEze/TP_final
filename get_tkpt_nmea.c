@@ -75,7 +75,7 @@ status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs) {
 			structs->zda->time_flag = TRUE;
 			tkpt_flag = TRUE;
 			if((st = read_nmea_rmc(f, structs, checksum)) != ST_OK) {
-			    printf("%d", st);
+			    printf("%d\n", st);
 				if(st == ST_INVALID_CHECKSUM)
 					log_print(metadata->logfile, CHECKSUM);
 				else
@@ -144,7 +144,7 @@ status_t get_nmea_data(unsigned int qfields, char string[][MAX_SUBSTR_NMEA], FIL
 	if(!string || !f || !current_checksum)
 		return ST_NULL_PTR;
 	fgetc(f);
-	printf("%d\n", *current_checksum);
+
 	for(j = 0; j < qfields; j++) {
 		for(i = 0; (c = (string)[j][i] = fgetc(f))!= EOF && c != CHAR_DELIM && c != CHAR_INIT_NMEA && c != CHAR_END_NMEA; i++) {
 			*current_checksum ^= c;
@@ -173,7 +173,7 @@ status_t get_nmea_data(unsigned int qfields, char string[][MAX_SUBSTR_NMEA], FIL
 
     
 	hexstring_2_integer((char)check1, (char)check2, &nmea_checksum); 
-	printf("|%d %d|\n", nmea_checksum, *current_checksum);
+	
 	if(nmea_checksum != *current_checksum) 
 		return ST_INVALID_CHECKSUM;
 	return ST_OK;

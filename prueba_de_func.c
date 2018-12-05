@@ -82,7 +82,7 @@ int main(int argc, const char ** argv) {
 		return st;
 	}
 
-	for(i = 0; i < 8; i++) {
+	for(i = 0; i < 20; i++) {
 		st = get_tkpt[metadata->protocol - 1](metadata, data_structs);
 		if(st != ST_OK) {
 			printf("Descartado");

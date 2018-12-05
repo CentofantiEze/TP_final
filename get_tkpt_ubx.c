@@ -173,7 +173,7 @@ puts("tkpt-nav-pvt");
 
 			if(data_structs->tkpt->time_flag == TRUE) {
 				puts("tkpt-nav-pos-llh");
-				log_print(metadata->infile, TKPT_GEN);
+				log_print(metadata->logfile, TKPT_GEN);
 				return ST_OK;
 			}
 
@@ -210,7 +210,7 @@ puts("tkpt-nav-pvt");
 
 			if(data_structs->tkpt->time_flag == TRUE) {
 				puts("tkpt-nav-pos-llh");
-				log_print(metadata->infile, TKPT_GEN);
+				log_print(metadata->logfile, TKPT_GEN);
 				return ST_OK;
 			}
 
