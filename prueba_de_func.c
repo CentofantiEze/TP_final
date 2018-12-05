@@ -8,6 +8,8 @@
 
 #include "structs_and_types.h"
 
+#include "logs.c"
+
 #include "arg_load.h"
 #include "arg_load.c"
 
@@ -20,8 +22,6 @@
 #include "get_tkpt_nmea.h"
 #include "get_tkpt_nmea.c"
 
-#include "logs.c"
-
 #include "get_tkpt_ubx.c"
 
 int main(int argc, const char ** argv) {
@@ -31,7 +31,7 @@ int main(int argc, const char ** argv) {
 	List * list = NULL;
 	data_structs_s * data_structs = NULL;
 	status_t (*get_tkpt[])(arg_s *, data_structs_s *) = {get_tkpt_nmea, get_tkpt_ubx};
-
+	int i;
 
 	metadata = arg_create(&st);
 
@@ -52,7 +52,7 @@ int main(int argc, const char ** argv) {
 
 	st = protocol_detect(metadata);
 
-	printf("protocol_detect:%d\n", st);
+	printf("protocoool_detect:%d\n", st);
 
 	if(st != ST_OK) {
 		close_files(metadata);
@@ -82,34 +82,28 @@ int main(int argc, const char ** argv) {
 		return st;
 	}
 
-	data_structs->gga->latitude = 24;
-
-	printf("%f\n", data_structs->gga->latitude);
-
-	printf("%f\n", data_structs->rmc->longitude);
-
-	for(int i = 0; i < 10; i++) {
+	for(i = 0; i < 8; i++) {
 		st = get_tkpt[metadata->protocol - 1](metadata, data_structs);
 		if(st != ST_OK) {
 			printf("Descartado");
 			printf("%d\n", st);
 			i--;
-			if(st == ST_ERROR_EOF)
+			if(st == ST_ERROR_EOF) {
+				puts("EOF");
 				break;
+			}
 		} else {
 			st = list_append_tkpt(list, data_structs->tkpt, metadata->maxlen);
 			if(st != ST_OK) {
+				puts("algomalanda");
 				printf("%d\n", st);
-				return st;
+				return 0;
 			}
 			printf("nodo %d %d\n",i,st);
 		}
 	}
 
-	printf("%lu\n", list->len);
-
-	printf("%d\n",((tkpt_s *)(list->first_node->data))->tkpt_msec);
-
+	puts("fin");
 
 	close_files(metadata);
 	free_metadata(metadata);

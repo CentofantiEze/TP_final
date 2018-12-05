@@ -97,7 +97,7 @@ struct nav_pvt {
 	double longitude;
 	double elipsode_height;
 	double oversea_height;
-	double pdop;
+	unsigned int pdop;
 };
 typedef struct nav_pvt nav_pvt_s;
 

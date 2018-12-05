@@ -21,7 +21,7 @@ status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs) {
 	f = metadata->infile;
 	
 	while(tkpt_flag == FALSE) {
-		
+
 		while((c = fgetc(f)) != CHAR_INIT_NMEA && c != EOF) {
 		}
 		checksum = 0;
@@ -59,7 +59,7 @@ status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs) {
 			gga2tkpt(tkpt, structs->gga); 
 	
             log_print(metadata->logfile, TIME_UPDATED);
-            
+
 		} else if(!(strcmp(aux, ZDA_INDICATOR))) {
 			structs->zda->time_flag = TRUE;
 			if((st = read_nmea_zda(f, structs, checksum)) != ST_OK) {
@@ -90,11 +90,11 @@ status_t get_tkpt_nmea(arg_s * metadata, data_structs_s * structs) {
             log_print(metadata->logfile, DATE_UPDATED);
 		    
 		} else
-			log_print(metadata->logfile, IGNORE_STATEMENT);
+			log_print(metadata->logfile, IGNORED_STATEMENT);
 		    return ST_IGNORE_STATEMENT;
 	} /* while */
 	
-	            
+	          
     log_print(metadata->logfile, TKPT_GEN);
 	return ST_OK;
 
