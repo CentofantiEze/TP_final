@@ -1,71 +1,4 @@
-﻿#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-
-status_t get_tkpt_ubx(arg_s *, data_structs_s *);
-status_t search_sync(FILE * f);
-status_t load_tim_tos (arg_s *, tim_tos_s *, size_t, uchar, uchar);
-status_t load_nav_pvt(arg_s *, nav_pvt_s *, size_t , uchar, uchar);
-status_t load_nav_posllh(arg_s *, nav_posllh_s *, size_t, uchar, uchar);
-status_t tim_tos2tkpt(data_structs_s *);
-status_t nav_pvt2tkpt(data_structs_s *);
-status_t nav_posllh2tkpt(data_structs_s *);
-status_t get_length(FILE *, size_t *, uchar *, uchar *);
-status_t cksm_double(uchar * cksm1, uchar * cksm2, double aux_d);
-status_t read_unsigned_4(FILE * f, uchar * cksm1, uchar * cksm2, unsigned int * val);
-status_t read_signed_4(FILE * f, uchar * cksm1, uchar * cksm2, long * val);
-
-#define IGNORE_BYTES_TIM_TOS_1 6
-#define IGNORE_BYTES_TIM_TOS_2 9
-#define IGNORE_BYTES_TIM_TOS_3 24
-
-#define IGNORE_BYTES_PVT_1 8
-#define IGNORE_BYTES_PVT_2 1
-#define IGNORE_BYTES_PVT_3 36
-#define IGNORE_BYTES_PVT_4 6
-#define IGNORE_BYTES_PVT_5 8
-
-#define CONV_LTL_ENDN_2 256
-#define CONV_LTL_ENDN_3 65536
-#define CONV_LTL_ENDN_4 16777216
-
-#define MASK_VALID_DATE 0x1
-#define SHIFT_VALID_DATE 0
-#define MASK_VALID_TIME 0x2
-#define SHIFT_VALID_TIME 1
-#define MASK_VALID_FIX 0x1
-#define SHIFT_VALID_FIX 0
-
-#define PAYLOAD_TIM_TOS 56
-#define PAYLOAD_NAV_PVT 92
-#define PAYLOAD_NAV_POSLLH 28
-
-#define CLASS_NAV 0x01
-#define CLASS_TIM_TOS 0x0D
-
-#define ID_TIM_TOS 0x12
-#define ID_NAV_PVT 0x07
-#define ID_NAV_POSLLH 0x02
-
-#define SYNC_1 0xB5
-#define SYNC_2 0x62
-
-#define MASK_DOUBLE_B0 0x000000FF
-#define MASK_DOUBLE_B1 0x0000FF00
-#define MASK_DOUBLE_B2 0x00FF0000
-#define MASK_DOUBLE_B3 0xFF000000
-
-#define SHIFT_DOUBLE_B0 0
-#define SHIFT_DOUBLE_B1 8
-#define SHIFT_DOUBLE_B2 16
-#define SHIFT_DOUBLE_B3 24
-
-#define LONGITUDE_SCALE 10000000
-#define LATITUDE_SCALE 10000000
-
-
-status_t get_tkpt_ubx(arg_s * metadata, data_structs_s * data_structs) {
+﻿status_t get_tkpt_ubx(arg_s * metadata, data_structs_s * data_structs) {
 
 	FILE * f = NULL;
     uchar aux, cksm1 = 0, cksm2 = 0;
@@ -539,12 +472,16 @@ status_t load_nav_pvt(arg_s * metadata, nav_pvt_s *nav_pvt, size_t l, uchar cksm
 	cksm2 += cksm1;
 	nav_pvt->validity_flags = aux;
 
-	if(! (((nav_pvt->validity_flags) & MASK_VALID_DATE) >> SHIFT_VALID_DATE))
+	if(! (((nav_pvt->validity_flags) & MASK_VALID_DATE) >> SHIFT_VALID_DATE)) {
+		log_print(metadata->logfile, UBX_DATE);
 		return ST_INVALID_DATE;
+	}
 
-	if(! (((nav_pvt->validity_flags) & MASK_VALID_TIME) >> SHIFT_VALID_TIME))
+	if(! (((nav_pvt->validity_flags) & MASK_VALID_TIME) >> SHIFT_VALID_TIME)) {
+		log_print(metadata->logfile, UBX_TIME);
 		return ST_INVALID_TIME;
-	
+	}
+
 	for(i = 0; i < IGNORE_BYTES_PVT_1; i++) {
 
 		if(fread(&aux, sizeof(uchar), 1, f) != 1)
@@ -570,8 +507,9 @@ status_t load_nav_pvt(arg_s * metadata, nav_pvt_s *nav_pvt, size_t l, uchar cksm
 	cksm2 += cksm1;
 	nav_pvt->flags = aux;
 
-	//if(! (((nav_pvt->flags) & MASK_VALID_FIX) >> SHIFT_VALID_FIX))
-	//	return ST_INVALID_FIX;
+	if(! (((nav_pvt->flags) & MASK_VALID_FIX) >> SHIFT_VALID_FIX))
+		log_print(metadata->logfile, NMEA_FIX);
+
 	
 	if(fread(&aux, sizeof(uchar), 1, f) != 1)
 			return ST_CORRUPT_FILE;
@@ -648,14 +586,18 @@ status_t load_nav_pvt(arg_s * metadata, nav_pvt_s *nav_pvt, size_t l, uchar cksm
 	if(fread(&aux, sizeof(uchar), 1, f) != 1)
 		return ST_CORRUPT_FILE;
 
-	if(aux != cksm1)
+	if(aux != cksm1) {
+		log_print(metadata->logfile, CHECKSUM);
 		return ST_INVALID_CHECKSUM;
+	}
 
 	if(fread(&aux, sizeof(uchar), 1, f) != 1)
 		return ST_CORRUPT_FILE;
 
-	if(aux != cksm2)
+	if(aux != cksm2) {
+		log_print(metadata->logfile, CHECKSUM);
 		return ST_INVALID_CHECKSUM;
+	}
 
 	return ST_OK;
 }
@@ -707,14 +649,18 @@ status_t load_nav_posllh(arg_s * metadata, nav_posllh_s * nav_posllh, size_t l, 
 	if(fread(&aux, sizeof(uchar), 1, f) != 1)
 		return ST_CORRUPT_FILE;
 
-	if(aux != cksm1)
+	if(aux != cksm1) {
+		log_print(metadata->logfile, CHECKSUM);
 		return ST_INVALID_CHECKSUM;
+	}
 
 	if(fread(&aux, sizeof(uchar), 1, f) != 1)
 		return ST_CORRUPT_FILE;
 
-	if(aux != cksm2)
+	if(aux != cksm2) {
+		log_print(metadata->logfile, CHECKSUM);
 		return ST_INVALID_CHECKSUM;
+	}
 
 	return ST_OK;
 }
@@ -788,30 +734,6 @@ status_t get_length(FILE * f, size_t * l, uchar * cksm1, uchar * cksm2) {
 
 	return ST_OK;
 
-}
-
-status_t cksm_double(uchar * cksm1, uchar * cksm2, double aux_d) {
-
-	uchar b1, b2, b3, b4;
-
-	if(! cksm1 || ! cksm2)
-		return ST_NULL_PTR;
-
-	b1 = ((long int)aux_d & MASK_DOUBLE_B0) >> SHIFT_DOUBLE_B0;
-	b2 = ((long int)aux_d & MASK_DOUBLE_B1) >> SHIFT_DOUBLE_B1;
-	b3 = ((long int)aux_d & MASK_DOUBLE_B2) >> SHIFT_DOUBLE_B2;
-	b4 = ((long int)aux_d & MASK_DOUBLE_B3) >> SHIFT_DOUBLE_B3;
-
-	*cksm1 += b1;
-	*cksm2 += *cksm1;
-	*cksm1 += b2;
-	*cksm2 += *cksm1;
-	*cksm1 += b3;
-	*cksm2 += *cksm1;
-	*cksm1 += b4;
-	*cksm2 += *cksm1;
-
-	return ST_OK;
 }
 
 

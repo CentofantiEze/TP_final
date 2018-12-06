@@ -111,6 +111,8 @@ List * list_delete(List * list) {
 
 status_t popleft(List * list, tkpt_s ** tkpt) {
 
+	Node * aux;
+
 	if(! list || ! tkpt)
 		return ST_NULL_PTR;
 
@@ -119,9 +121,11 @@ status_t popleft(List * list, tkpt_s ** tkpt) {
 
 	*tkpt = list->first_node->data;
 
+	aux = list->first_node->next;
+
 	free(list->first_node);
 
-	list->first_node = list->first_node->next;
+	list->first_node = aux;
 	
 	list->len--;
 

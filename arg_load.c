@@ -18,6 +18,20 @@ status_t arg_load(int argc, const char ** argv, arg_s * metadata_io) {
 	if(! metadata_io)
 		return ST_NULL_PTR;
 
+	for(i = 1; i < argc; i++) {
+
+		if(! strcmp(argv[i], STR_PROTOCOL_1) || ! strcmp(argv[i], STR_PROTOCOL_2)) {
+
+			if(++i == argc)
+				return ST_INVALID_ARGUMENT;
+
+			st = arg_set_protocol(metadata_io, argv[i]);
+
+			if(st == ST_NULL_PTR || st == ST_INVALID_ARGUMENT)
+				return st;
+		}
+	}
+
 	for(i = 1; i < argc; i++) { // Para cada argumento en argv se compara con los argumentos validos
 
 		for(j = 0; j < ARG_NUM; j++) {
@@ -47,14 +61,6 @@ status_t arg_load(int argc, const char ** argv, arg_s * metadata_io) {
 						break;
 
 					case ARG_TYPE_PROTOCOL :
-
-						if(++i == argc)
-							return ST_INVALID_ARGUMENT;
-
-						st = arg_set_protocol(metadata_io, argv[i]);
-
-						if(st == ST_NULL_PTR || st == ST_INVALID_ARGUMENT)
-							return st;
 
 						arg_flags[j/2]++;
 						break;

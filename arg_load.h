@@ -3,6 +3,8 @@
 #include <time.h>
 #include <string.h>
 
+#define HELP_MSJ_START "rerun with -h or --help to view help file."
+
 #define ARG_MAX_LEN 12 // CANTIDAD MAXIMA DE CARACTERES DE LOS ARGUMENTOS
 #define ARG_NUM 14 // CANTIDAD DE ARGUMENTOS
 #define PROTOCOL_MAX_LEN 5 // CANTIDAD MAXIMA DE CARACTERES DE LOS TIPOS DE PROTOCOLO
@@ -24,8 +26,11 @@
 #define MODE_READ_BINARY "rb"
 #define MODE_WRITE_TEXT "wt"
 
-#define MAX_MAXLEN 100
-#define DEFAULT_MAXLEN "100"
+#define MAX_MAXLEN 1000
+#define DEFAULT_MAXLEN "1000"
+
+#define STR_PROTOCOL_1 "-p"
+#define STR_PROTOCOL_2 "--protocol"
 
 arg_s * arg_create(status_t *);
 status_t arg_load(int  , const char **, arg_s *);

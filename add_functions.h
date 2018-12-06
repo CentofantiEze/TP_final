@@ -1,4 +1,4 @@
-#define MAX_PROCESS_T 3
+#define MAX_PROCESS_T 4
 
 #define DATA_S_TYPES 4
 #define DATA_GGA_S 0
@@ -18,4 +18,4 @@
 status_t protocol_detect(arg_s * metadata);
 status_t data_structs_create(arg_s * metadata, data_structs_s ** data_structs);
 void free_data_structs(data_structs_s * data_structs);
-status_t gpx_process(List *, process_t);
+status_t gpx_process(arg_s * metadata, List * list, process_t proc);

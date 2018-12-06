@@ -122,8 +122,51 @@ void free_data_structs(data_structs_s * data_structs) {
 }
 
 
-status_t gpx_process(List * list, process_t proc) {
+status_t gpx_process(arg_s * metadata, List * list, process_t proc) {
 
-	return ST_OK;
+	status_t st;
+	tkpt_s * tkpt = NULL;
+	FILE * f;
 
+	if(! list || ! metadata)
+		return ST_NULL_PTR;
+
+	f = metadata->outfile;
+
+	if(list->len == 0)
+		return ST_OK;
+
+	if(proc == PROCESS_ZERO)
+		return ST_OK;
+
+	if(proc == PROCESS_ALL) {
+
+		if((st = popleft(list, &tkpt)) == ST_OK) {
+			
+			if(gpx_tkpt(f, tkpt) != ST_OK) {
+				free(tkpt);
+				return ST_CORRUPT_FILE;
+			}
+
+			log_print(metadata->logfile, TKPT_PRINT);
+			free(tkpt);
+			return gpx_process(metadata, list,proc);
+		}
+
+		return st;
+	}
+
+	if((st = popleft(list, &tkpt)) == ST_OK) {
+		
+		if(gpx_tkpt(f, tkpt) != ST_OK){
+			free(tkpt);
+			return ST_CORRUPT_FILE;
+		}
+
+		log_print(metadata->logfile, TKPT_PRINT);
+		free(tkpt);
+		return gpx_process(metadata, list, --proc);
+	}
+
+	return st;
 }
