@@ -1,2 +1,93 @@
-
-Error: an internal error ocurred
+The current time has been updated
+The current date has been updated
+The current time has been updated
+Trackpoint generated successfully
+Trackpoint printed successfully
+Ignored statement
+The current time has been updated
+The current date has been updated
+Trackpoint generated successfully
+Trackpoint printed successfully
+The current time has been updated
+The current date has been updated
+The current time has been updated
+Trackpoint generated successfully
+Trackpoint printed successfully
+Ignored statement
+The current time has been updated
+The current date has been updated
+Trackpoint generated successfully
+Trackpoint printed successfully
+The current time has been updated
+The current date has been updated
+The current time has been updated
+Trackpoint generated successfully
+Ignored statement
+The current time has been updated
+The current date has been updated
+Trackpoint generated successfully
+Trackpoint printed successfully
+The current time has been updated
+The current date has been updated
+The current time has been updated
+Trackpoint generated successfully
+Trackpoint printed successfully
+Ignored statement
+The current time has been updated
+The current date has been updated
+Trackpoint generated successfully
+Trackpoint printed successfully
+Trackpoint printed successfully
+The current time has been updated
+The current date has been updated
+The current time has been updated
+Trackpoint generated successfully
+Trackpoint printed successfully
+Ignored statement
+The current time has been updated
+The current date has been updated
+Trackpoint generated successfully
+Trackpoint printed successfully
+The current time has been updated
+The current date has been updated
+The current time has been updated
+Trackpoint generated successfully
+Ignored statement
+The current time has been updated
+The current date has been updated
+Trackpoint generated successfully
+Trackpoint printed successfully
+Trackpoint printed successfully
+The current time has been updated
+The current date has been updated
+The current time has been updated
+Trackpoint generated successfully
+Trackpoint printed successfully
+Ignored statement
+The current time has been updated
+The current date has been updated
+Trackpoint generated successfully
+The current time has been updated
+The current date has been updated
+The current time has been updated
+Trackpoint generated successfully
+Ignored statement
+The current time has been updated
+The current date has been updated
+Trackpoint generated successfully
+Trackpoint printed successfully
+Trackpoint printed successfully
+Trackpoint printed successfully
+The current time has been updated
+The current date has been updated
+The current time has been updated
+Trackpoint generated successfully
+Trackpoint printed successfully
+Ignored statement
+The current time has been updated
+The current date has been updated
+Trackpoint generated successfully
+Trackpoint printed successfully
+Warning: No GPS found
+Ignored statement
+The program has ended successfully

@@ -1,1 +1,0 @@
-#define GPX_TKPT "\t\t\t<trkpt lat=\"%02.06f\" lon=\"%02.06f\">\n\t\t\t\t<ele>%01.06f</ele>\n\t\t\t\t<time>%4d-%02d-%02dT%02d:%02d:%02d.%3dZ</time>\n\t\t\t</trkpt>\n"
